@@ -7,5 +7,6 @@
 </head>
 <body>
     <p>je suis sur la branch develop</p>
+    <p>simulation de conflit</p>
 </body>
 </html>
