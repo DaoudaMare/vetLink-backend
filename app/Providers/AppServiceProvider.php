@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
+use App\Interfaces\UserInterface;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-use App\Repositories\UserRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(
-            UserRepositoryInterface::class, 
+            UserInterface::class, 
             UserRepository::class
         );
     }
