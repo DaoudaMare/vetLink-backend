@@ -2,65 +2,85 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StorePaiementRequest;
-use App\Http\Requests\UpdatePaiementRequest;
+use Illuminate\Http\Request;
 use App\Models\Paiement;
 
 class PaiementController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Créer un paiement
+    public function store(Request $request)
+    {
+        $request->validate([
+            'montant' => 'required|numeric|min:1',
+            'devise' => 'required|string',
+            'operateur' => 'required|string',
+            'telephone' => 'required|string|min:8|max:15',
+            'mode_paiement' => 'required|string',
+            'commande_id' => 'required|exists:commandes,id'
+        ]);
+
+        $paiement = Paiement::create([
+            //'transaction_id' => uniqid('txn_'),
+            'operateur' => $request->operateur,
+            'devise' => $request->devise,
+            'status' => 'pending', // Toujours en attente à la création
+            'telephone' => $request->telephone,
+            'montant' => $request->montant,
+            'date_paiement' => now(),
+            'mode_paiement' => $request->mode_paiement,
+            'commande_id' => $request->commande_id,
+        ]);
+
+        return response()->json([
+            'message' => 'Paiement initié avec succès',
+            'paiement' => $paiement
+        ], 201);
+    }
+
+    // Obtenir les détails d'un paiement
+    public function show($id)
+    {
+        $paiement = Paiement::findOrFail($id);
+        return response()->json($paiement);
+    }
+
+    // Confirmer un paiement
+    public function confirm($id)
+    {
+        $paiement = Paiement::findOrFail($id);
+        if ($paiement->status !== 'pending') {
+            return response()->json(['error' => 'Le paiement ne peut pas être confirmé'], 400);
+        }
+        $paiement->update(['status' => 'confirmed']);
+        return response()->json(['message' => 'Paiement confirmé', 'paiement' => $paiement]);
+    }
+
+    // Annuler un paiement
+    public function cancel($id)
+    {
+        $paiement = Paiement::findOrFail($id);
+        if ($paiement->status !== 'pending') {
+            return response()->json(['error' => 'Le paiement ne peut pas être annulé'], 400);
+        }
+        $paiement->update(['status' => 'cancelled']);
+        return response()->json(['message' => 'Paiement annulé', 'paiement' => $paiement]);
+    }
+
+    // Liste des paiements
     public function index()
     {
-        //
+        $paiements = Paiement::all();
+        return response()->json($paiements);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    // Rembourser un paiement
+    public function refund($id)
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StorePaiementRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Paiement $paiement)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Paiement $paiement)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatePaiementRequest $request, Paiement $paiement)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Paiement $paiement)
-    {
-        //
+        $paiement = Paiement::findOrFail($id);
+        if ($paiement->status !== 'confirmed') {
+            return response()->json(['error' => 'Seuls les paiements confirmés peuvent être remboursés'], 400);
+        }
+        $paiement->update(['status' => 'refunded']);
+        return response()->json(['message' => 'Paiement remboursé', 'paiement' => $paiement]);
     }
 }
