@@ -13,15 +13,16 @@ class ProduitPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return true;
     }
+
 
     /**
      * Determine whether the user can view the model.
      */
     public function view(User $user, Produit $produit): bool
     {
-        //
+        return  true;
     }
 
     /**
@@ -29,7 +30,7 @@ class ProduitPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return  true;
     }
 
     /**
@@ -37,7 +38,7 @@ class ProduitPolicy
      */
     public function update(User $user, Produit $produit): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -45,7 +46,7 @@ class ProduitPolicy
      */
     public function delete(User $user, Produit $produit): bool
     {
-        //
+        return $user->role == 'admin';
     }
 
     /**
@@ -53,7 +54,7 @@ class ProduitPolicy
      */
     public function restore(User $user, Produit $produit): bool
     {
-        //
+        return $user->role == 'admin';
     }
 
     /**
@@ -61,6 +62,6 @@ class ProduitPolicy
      */
     public function forceDelete(User $user, Produit $produit): bool
     {
-        //
+        return $user->role == 'admin';
     }
 }
