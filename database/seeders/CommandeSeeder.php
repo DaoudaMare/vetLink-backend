@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Commande;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class CommandeSeeder extends Seeder
 {
@@ -13,5 +14,6 @@ class CommandeSeeder extends Seeder
     public function run(): void
     {
         //
+        Commande::factory()->count(15)->create(); // Créer 15 commandes
     }
 }

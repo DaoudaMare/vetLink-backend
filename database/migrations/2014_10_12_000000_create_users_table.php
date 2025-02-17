@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('adresse')->nullable();
             $table->string('password');
-            $table->enum('type_utilisateur', ['consommateur', 'producteur']);
+            $table->enum('type_utilisateur', ['consommateur', 'producteur', 'admin']);
             $table->boolean('abonnement')->default(false);
             $table->softDeletes();
             $table->timestamps();
