@@ -16,18 +16,13 @@
       </a>
       <ul id="users-nav" class="nav-content collapse">
         <li>
-          <a href="./users-list.html">
+          <a href="{{ route('vetlink.admin.utilisateurs') }}">
             <i class="bi bi-circle"></i><span>Liste des Utilisateurs</span>
           </a>
         </li>
         <li>
-          <a href="./users-verification.html">
+          <a href="{{ route('vetlink.admin.verification_profile') }}">
             <i class="bi bi-circle"></i><span>Vérification des Profils</span>
-          </a>
-        </li>
-        <li>
-          <a href="./users-badges.html">
-            <i class="bi bi-circle"></i><span>Badges Attribués</span>
           </a>
         </li>
       </ul>
@@ -41,17 +36,17 @@
       </a>
       <ul id="products-nav" class="nav-content collapse">
         <li>
-          <a href="./products-list.html">
+          <a href="{{ route('vetlink.admin.liste_produits') }}">
             <i class="bi bi-circle"></i><span>Liste des Produits</span>
           </a>
         </li>
         <li>
-          <a href="./products-certifications.html">
+          <a href="{{ route('vetlink.admin.certifications_produit') }}">
             <i class="bi bi-circle"></i><span>Certifications des Produits</span>
           </a>
         </li>
         <li>
-          <a href="./products-traceability.html">
+          <a href="{{ route('vetlink.admin.traceability_produit') }}">
             <i class="bi bi-circle"></i><span>Traçabilité</span>
           </a>
         </li>
@@ -66,12 +61,12 @@
       </a>
       <ul id="transactions-nav" class="nav-content collapse">
         <li>
-          <a href="./transactions-list.html">
+          <a href="{{ route('vetlink.admin.listes_transactions') }}">
             <i class="bi bi-circle"></i><span>Liste des Transactions</span>
           </a>
         </li>
         <li>
-          <a href="./transactions-disputes.html">
+          <a href="{{ route('vetlink.admin.transactions_litiges') }}">
             <i class="bi bi-circle"></i><span>Litiges</span>
           </a>
         </li>
@@ -80,27 +75,9 @@
 
     <!-- Gestion des Badges -->
     <li class="nav-item">
-      <a class="nav-link collapsed" data-bs-target="#badges-nav" data-bs-toggle="collapse" href="#">
+      <a class="nav-link collapsed" href="{{route('vetlink.admin.badge_verifier')}}">
         <i class="bi bi-award"></i><span>Badges</span>
-        <i class="bi bi-chevron-down ms-auto"></i>
       </a>
-      <ul id="badges-nav" class="nav-content collapse">
-        <li>
-          <a href="./badges-list.html">
-            <i class="bi bi-circle"></i><span>Liste des Badges</span>
-          </a>
-        </li>
-        <li>
-          <a href="./badges-criteria.html">
-            <i class="bi bi-circle"></i><span>Critères d'Attribution</span>
-          </a>
-        </li>
-        <li>
-          <a href="./badges-assign.html">
-            <i class="bi bi-circle"></i><span>Attribuer des Badges</span>
-          </a>
-        </li>
-      </ul>
     </li>
 
     <!-- Gamification et Récompenses -->
@@ -111,17 +88,17 @@
       </a>
       <ul id="gamification-nav" class="nav-content collapse">
         <li>
-          <a href="./gamification-challenges.html">
+          <a href="{{ route('vetlink.admin.defis') }}">
             <i class="bi bi-circle"></i><span>Défis</span>
           </a>
         </li>
         <li>
-          <a href="./gamification-rewards.html">
+          <a href="{{ route('vetlink.admin.rewards') }}">
             <i class="bi bi-circle"></i><span>Récompenses</span>
           </a>
         </li>
         <li>
-          <a href="./gamification-leaderboard.html">
+          <a href="{{ route('vetlink.admin.classement') }}">
             <i class="bi bi-circle"></i><span>Classement</span>
           </a>
         </li>
@@ -136,12 +113,12 @@
       </a>
       <ul id="notifications-nav" class="nav-content collapse">
         <li>
-          <a href="./notifications-list.html">
+          <a href="{{ route('vetlink.admin.notifications') }}">
             <i class="bi bi-circle"></i><span>Liste des Notifications</span>
           </a>
         </li>
         <li>
-          <a href="./notifications-settings.html">
+          <a href="{{ route('vetlink.admin.parametres') }}">
             <i class="bi bi-circle"></i><span>Paramètres</span>
           </a>
         </li>
