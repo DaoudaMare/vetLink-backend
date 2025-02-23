@@ -45,7 +45,7 @@
                 <i class="bi bi-eye"></i> Voir
               </button>
               <button class="btn btn-warning btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir suspendre cet utilisateur ?')">
-                <i class="bi bi-pause"></i> Suspendre
+                <i class="bi bi-pause"></i> Avertir
               </button>
               <button class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir bannir cet utilisateur ?')">
                 <i class="bi bi-ban"></i> Bannir
@@ -65,7 +65,7 @@
                 <i class="bi bi-eye"></i> Voir
               </button>
               <button class="btn btn-warning btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir suspendre cet utilisateur ?')">
-                <i class="bi bi-pause"></i> Suspendre
+                <i class="bi bi-pause"></i> Avertir
               </button>
               <button class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir bannir cet utilisateur ?')">
                 <i class="bi bi-ban"></i> Bannir

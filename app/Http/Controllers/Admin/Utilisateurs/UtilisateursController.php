@@ -16,4 +16,8 @@ class UtilisateursController extends Controller
     {
         return view('utilisateurs.verification_profile');
     }
+    public function new_User()
+    {
+        return view('utilisateurs.new_moderateur');
+    }
 }
