@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->integer('completion_percentage')->default(30); // Pourcentage de complétion du profil
-            $table->enum('status', ['in_progress', 'incomplete', 'verified'])->default('in_progress'); // Statut du profil
+            $table->enum('status', ['incomplete', 'verified'])->default('incomplete'); // Statut du profil
             $table->timestamp('last_reminder_at')->nullable(); // Dernière relance envoyée
             $table->timestamps();
         });

@@ -9,6 +9,7 @@ use App\Models\Producteur;
 use App\Enums\TypeUserEnum;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Hash;
 use App\Enums\TypeSecteurActiviteEnum;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -24,16 +25,19 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $guarded = [];
+    protected $fillable = [
+        'nom_raison_sociale', 'type_user', 'secteur_activite', 'email', 'telephone',
+        'pays', 'ville', 'coordonnees_gps', 'adresse_physique', 'photo_profil', 'description',
+    ];
 
     protected static function boot()
     {
         parent::boot();
-        static::creating(function($user){
-            if(!$user)
-            {
-                $user->id = Str::uuid();
-            }
+
+        static::creating(function ($user) {
+            $user->id = Str::uuid(); // Génère un UUID lors de la création
+            $user->password = Hash::make($user->password);
+            $user->liens_reseaux_sociaux = json_encode($user->liens_reseaux_sociaux);
         });
     }
     /**
