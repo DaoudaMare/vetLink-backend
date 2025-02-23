@@ -90,11 +90,11 @@
         <div class="row">
           <div class="col-md-6">
             <h6>Carte d'Identité</h6>
-            <img src="{{asset('assets/img/id-card.jpg')}}" alt="Carte d'Identité" class="img-fluid">
+            <img src="https://t3.ftcdn.net/jpg/02/72/40/44/360_F_272404412_MD9Qnk52bpTk9BEhpq2ZofYupyF8UWbg.jpg" alt="Carte d'Identité" class="img-fluid">
           </div>
           <div class="col-md-6">
             <h6>Certificat de Producteur</h6>
-            <img src="{{asset('assets/img/certificate.jpg')}}" alt="Certificat de Producteur" class="img-fluid">
+            <img src="https://img.freepik.com/psd-gratuit/modele-certificat-elegant-details-dores_69286-459.jpg" alt="Certificat de Producteur" class="img-fluid">
           </div>
         </div>
       </div>
@@ -117,11 +117,11 @@
         <div class="row">
           <div class="col-md-6">
             <h6>Carte d'Identité</h6>
-            <img src="{{asset('assets/img/id-card.jpg')}}" alt="Carte d'Identité" class="img-fluid">
+            <img src="https://img.lovepik.com/free-template/20231118/lovepik-student-id-card-business-card-template-young-boys-head-image_6849841_detail.jpg" alt="Carte d'Identité" class="img-fluid">
           </div>
           <div class="col-md-6">
             <h6>Registre de Commerce</h6>
-            <img src="{{asset('assets/img/commerce-register.jpg')}}" alt="Registre de Commerce" class="img-fluid">
+            <img src="https://img.freepik.com/free-photo/man-holding-contract-his-new-office-job-after-interview_23-2149034569.jpg?ga=GA1.1.1830561302.1719891261&semt=ais_hybrid" alt="Registre de Commerce" class="img-fluid">
           </div>
         </div>
       </div>
