@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\ViewDashboardController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\ViewLoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,4 +17,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+Route::prefix('vetlink')->group(function () {
+    Route::get('/login', ViewLoginController::class)->name('login');
+});
+
+Route::prefix('vetlink')->name('vetlink.admin.')->group(function () {
+    Route::get('dashboard', ViewDashboardController::class)->name('dashboard');
 });

@@ -3,8 +3,9 @@
 namespace Database\Factories;
 
 use App\Models\User;
+use App\Enums\TypeUserEnum;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
+use App\Enums\TypeSecteurActiviteEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -22,14 +23,43 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'nom' => $this->faker->lastName(),
-            'prenom' => $this->faker->firstName(),
-            'email' => $this->faker->unique()->safeEmail(),
-            'adresse' => $this->faker->address(),
-            'password' => Hash::make('password'), // Mot de passe crypté
-            'type_utilisateur' => $this->faker->randomElement(['consommateur', 'producteur', 'admin']),
-            'abonnement' => $this->faker->boolean(30), // 30% de chances d'avoir un abonnement actif
+            'id' => Str::uuid(),
+            'nom_raison_sociale' => $this->faker->name,
+            'type_user' => $this->faker->randomElement(array_column(TypeUserEnum::cases(), 'value')),
+            'secteur_activite' => $this->faker->randomElement(array_column(TypeSecteurActiviteEnum::cases(), 'value')),
+            'email' => $this->faker->unique()->safeEmail,
+            'telephone' => $this->faker->unique()->phoneNumber,
+            'pays' => $this->faker->country,
+            'ville' => $this->faker->city,
+            'coordonnees_gps' => $this->faker->latitude . ',' . $this->faker->longitude,
+            'adresse_physique' => $this->faker->address,
+            'photo_profil' => $this->faker->imageUrl(),
+            'description' => $this->faker->paragraph,
+            'password' => bcrypt('password'), // Mot de passe par défaut
+            'liens_reseaux_sociaux' => json_encode([
+                'facebook' => $this->faker->url,
+                'twitter' => $this->faker->url,
+            ]),
+            'user_id' => null, // Vous pouvez ajuster cela si nécessaire
         ];
+    }
+
+    public function admin()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'type_user' => TypeUserEnum::Admin->value,
+            ];
+        });
+    }
+
+    public function moderateur()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'type_user' => TypeUserEnum::Moderateur->value,
+            ];
+        });
     }
 
     /**

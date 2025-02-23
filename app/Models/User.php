@@ -3,9 +3,13 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
 use App\Models\Commande;
 use App\Models\Producteur;
+use App\Enums\TypeUserEnum;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
+use App\Enums\TypeSecteurActiviteEnum;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,16 +24,18 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'nom', 
-        'prenom', 
-        'email', 
-        'adresse', 
-        'password', 
-        'type_utilisateur', 
-        'abonnement'
-    ];
+    protected $guarded = [];
 
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function($user){
+            if(!$user)
+            {
+                $user->id = Str::uuid();
+            }
+        });
+    }
     /**
      * Un utilisateur peut être un producteur.
      * Relation One-to-One (1-1)
@@ -67,5 +73,8 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'type_user' => TypeUserEnum::class,
+        'secteur_activite' => TypeSecteurActiviteEnum::class,
+        'id' => 'string'
     ];
 }
