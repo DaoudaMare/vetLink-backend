@@ -25,12 +25,21 @@ class UserRepository implements UserInterface
      */
     public function login(array $credentials)
     {
+        dd($credentials);
+        
         if (!Auth::attempt($credentials)) {
             return null;
         }
 
-        return Auth::user()->createToken('API Token')->plainTextToken;
+        $user = Auth::user();
+
+        if (!$user) {
+            return null; // Sécurité supplémentaire si l'utilisateur n'est pas trouvé
+        }
+
+        return $user->createToken('API Token')->plainTextToken;
     }
+
 
     /**
      * Récupérer le profil utilisateur connecté

@@ -29,6 +29,6 @@ class UserSeeder extends Seeder
         ]);
 
          // Créer 100 utilisateurs avec d'autres types
-         User::factory()->count(100)->create();
+         User::factory()->count(10)->create();
     }
 }

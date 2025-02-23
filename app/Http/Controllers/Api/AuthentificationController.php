@@ -6,14 +6,18 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Repositories\UserRepository;
 use App\Http\Requests\Users\StoreUserRequest;
+use App\Repositories\ProfileProgressRepository;
 
 class AuthentificationController extends Controller
 {
     protected $userRepository;
+    protected $profileProgressRepository;
 
-    public function __construct(UserRepository $userRepository)
+    public function __construct(UserRepository $userRepository, ProfileProgressRepository $profileProgressRepository)
     {
         $this->userRepository = $userRepository;
+        $this->profileProgressRepository = $profileProgressRepository;
+        
     }
 
     /**
@@ -22,10 +26,12 @@ class AuthentificationController extends Controller
     public function register(StoreUserRequest $request)
     {
         $user = $this->userRepository->register($request->validated());
-
+        $this->profileProgressRepository->createProfileProgress([
+            'user_id' => $user->id
+        ]);
         return response()->json([
             'message' => 'Utilisateur créé avec succès', 
-            'user' => $user
+        'user' => $user
         ], 201);
     }
     
@@ -37,24 +43,24 @@ class AuthentificationController extends Controller
         // Validation des entrées
         $credentials = $request->validate([
             'email' => 'required|email',
-            'password' => 'required'
+            'password' => 'required|string|min:6'
         ]);
-
-        // Appel du repository
-        $response = $this->userRepository->login($credentials);
-
-        if (!$response) {
+    
+        // Tentative de connexion via le repository
+        $token = $this->userRepository->login($credentials);
+    
+        if (!$token) {
             return response()->json([
                 'message' => 'Identifiants incorrects'
             ], 401);
         }
-
+    
         return response()->json([
             'message' => 'Connexion réussie',
-            'token' => $response
+            'token' => $token,
+            'user' => Auth::user() // Ajout pour renvoyer les infos de l'utilisateur connecté
         ], 200);
-    }
-    
+    }    
     /**
      * Déconnexion de l'utilisateur
      */
