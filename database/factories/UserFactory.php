@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\User;
 use App\Enums\TypeUserEnum;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use App\Enums\TypeSecteurActiviteEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -35,7 +36,7 @@ class UserFactory extends Factory
             'adresse_physique' => $this->faker->address,
             'photo_profil' => $this->faker->imageUrl(),
             'description' => $this->faker->paragraph,
-            'password' => bcrypt('password'), // Mot de passe par défaut
+            'password' => Hash::make('password'), // Mot de passe par défaut
             'liens_reseaux_sociaux' => json_encode([
                 'facebook' => $this->faker->url,
                 'twitter' => $this->faker->url,

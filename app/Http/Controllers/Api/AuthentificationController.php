@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Repositories\UserRepository;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Users\StoreUserRequest;
 use App\Repositories\ProfileProgressRepository;
 
@@ -42,24 +43,13 @@ class AuthentificationController extends Controller
     {
         // Validation des entrées
         $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string|min:6'
+            'email' => 'required',
+            'password' => 'required|string'
         ]);
     
         // Tentative de connexion via le repository
-        $token = $this->userRepository->login($credentials);
+        return $this->userRepository->inLogin($credentials);
     
-        if (!$token) {
-            return response()->json([
-                'message' => 'Identifiants incorrects'
-            ], 401);
-        }
-    
-        return response()->json([
-            'message' => 'Connexion réussie',
-            'token' => $token,
-            'user' => Auth::user() // Ajout pour renvoyer les infos de l'utilisateur connecté
-        ], 200);
     }    
     /**
      * Déconnexion de l'utilisateur

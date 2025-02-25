@@ -25,8 +25,9 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    
     protected $fillable = [
-        'nom_raison_sociale', 'type_user', 'secteur_activite', 'email', 'telephone',
+      'id',  'nom_raison_sociale', 'type_user', 'secteur_activite', 'email', 'telephone', 'liens_reseaux_sociaux', 'password',
         'pays', 'ville', 'coordonnees_gps', 'adresse_physique', 'photo_profil', 'description',
     ];
 
@@ -36,7 +37,6 @@ class User extends Authenticatable
 
         static::creating(function ($user) {
             $user->id = Str::uuid(); // Génère un UUID lors de la création
-            $user->password = Hash::make($user->password);
             $user->liens_reseaux_sociaux = json_encode($user->liens_reseaux_sociaux);
         });
     }
