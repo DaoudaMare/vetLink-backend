@@ -1,8 +1,9 @@
 <?php
 namespace App\Repositories;
 
-use App\Interfaces\ProfileProgressInterface;
+use App\Models\User;
 use App\Models\ProfileProgress;
+use App\Interfaces\ProfileProgressInterface;
 
 class ProfileProgressRepository implements ProfileProgressInterface
 
@@ -15,13 +16,19 @@ class ProfileProgressRepository implements ProfileProgressInterface
     {
       return ProfileProgress::create($data);
     }
-    public function updateProfileProgress(array $data)
+    public function updateProfileProgress(ProfileProgress $profile_user,array $data)
     {
-
+      $profile_user->update($data);
+        return $profile_user;
     }
     public function deleteProfileProgress()
     {
 
+    }
+    public function showUserProfile(string $id)
+    {
+      $profileProgress = ProfileProgress::where('user_id', $id)->first();
+      return $profileProgress;
     }
   
 }

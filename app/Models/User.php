@@ -5,9 +5,13 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Models\Commande;
+use App\Models\Entreprise;
 use App\Models\Producteur;
 use App\Enums\TypeUserEnum;
+use App\Models\Association;
+use App\Models\Groupements;
 use Illuminate\Support\Str;
+use App\Models\ProfileProgress;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Hash;
 use App\Enums\TypeSecteurActiviteEnum;
@@ -49,9 +53,62 @@ class User extends Authenticatable
     {
         return $this->hasOne(Producteur::class, 'user_id');
     }
+    /**
+     * Relation One-to-One (1-1) : 
+     * Un utilisateur possède une progression de profil.
+     */
+    public function profileProgress()
+    {
+        return $this->hasOne(ProfileProgress::class);
+    }
+
+    /**
+     * Relation One-to-One (1-1) : 
+     * Un utilisateur peut être une association.
+     */
+    public function association()
+    {
+        return $this->hasOne(Association::class);
+    }
+
+    /**
+     * Relation One-to-One (1-1) : 
+     * Un utilisateur peut être une entreprise.
+     */
+    public function entreprise()
+    {
+        return $this->hasOne(Entreprise::class);
+    }
+
+    /**
+     * Relation One-to-One (1-1) : 
+     * Un utilisateur peut être une startup.
+     */
+    public function startup()
+    {
+        return $this->hasOne(Startup::class);
+    }
+
+    /**
+     * Relation One-to-One (1-1) : 
+     * Un utilisateur peut être un groupement.
+     */
+    public function groupement()
+    {
+        return $this->hasOne(Groupements::class);
+    }
+
 
     /**
      * Un utilisateur peut passer plusieurs commandes.
+     * Relation One-to-Many (1-N)
+     */
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
+    }
+     /**
+     * Un utilisateur peut updload plusieurs documents.
      * Relation One-to-Many (1-N)
      */
     

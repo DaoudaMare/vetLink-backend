@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('file_path'); // Chemin du fichier
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending'); // Statut du document
             $table->text('comments')->nullable(); // Commentaires en cas de rejet
+            $table->foreignId('moderateur_id')->constrained('users')->onDelete('cascade')->nullable(); //celu qui traite le document
+
             $table->timestamps();
         });
     }

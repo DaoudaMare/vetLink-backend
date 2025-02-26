@@ -53,16 +53,6 @@ class UserFactory extends Factory
             ];
         });
     }
-
-    public function moderateur()
-    {
-        return $this->state(function (array $attributes) {
-            return [
-                'type_user' => TypeUserEnum::Moderateur->value,
-            ];
-        });
-    }
-
     /**
      * Indicate that the model's email address should be unverified.
      *

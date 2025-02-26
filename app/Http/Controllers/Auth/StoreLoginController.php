@@ -17,7 +17,7 @@ class StoreLoginController extends Controller
         $credentials = $request->validated();
         
         if (auth()->attempt($request->all())) {
-            return redirect()->route('dashboard');
+            return redirect()->route('vetlink.admin.dashboard');
         }
 
         if (Auth::attempt($credentials)) {

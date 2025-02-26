@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\ViewDashboardController;
 use App\Http\Controllers\Admin\Produits\ProduitController;
 use App\Http\Controllers\Admin\Transactions\TransactionController;
 use App\Http\Controllers\Admin\Utilisateurs\UtilisateursController;
+use App\Http\Controllers\Auth\StoreLoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,10 +26,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::prefix('vetlink')->group(function () {
-    Route::get('/login', ViewLoginController::class)->name('login');
+    Route::get('login', ViewLoginController::class)->name('login');
+    Route::post('authenticate', StoreLoginController::class)->name('authenticate');
 });
 
-Route::prefix('vetlink')->name('vetlink.admin.')->group(function () {
+Route::middleware(['auth'])->prefix('vetlink')->name('vetlink.admin.')->group(function () {
     Route::get('dashboard', ViewDashboardController::class)->name('dashboard');
 
    //Routes pour Utilisateurs

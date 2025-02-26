@@ -63,22 +63,27 @@
                     </ul>
                   </div>
 
-                  <form action="" method="POST" class="row g-3 needs-validation" novalidate>
+                  <form action="{{route('authenticate')}}" method="POST" class="row g-3 needs-validation" novalidate>
+                    @csrf
                     <!-- Champ Email -->
                     <div class="col-12">
-                      <label for="yourEmail" class="form-label">Email</label>
+                      <label for="email" class="form-label">Email</label>
                       <div class="input-group has-validation">
                         <span class="input-group-text" id="inputGroupPrepend">@</span>
-                        <input type="email" name="email" class="form-control" id="yourEmail" required>
-                        <div class="invalid-feedback">Veuillez entrer votre email.</div>
+                        <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" id="email" required value="{{ old('email') }}">
+                        @error('email')
+                          <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                       </div>
                     </div>
 
                     <!-- Champ Mot de passe -->
                     <div class="col-12">
-                      <label for="yourPassword" class="form-label">Mot de passe</label>
-                      <input type="password" name="password" class="form-control" id="yourPassword" required>
-                      <div class="invalid-feedback">Veuillez entrer votre mot de passe.</div>
+                      <label for="password" class="form-label">Mot de passe</label>
+                      <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" id="password" required>
+                      @error('password')
+                          <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <!-- Se souvenir de moi -->
