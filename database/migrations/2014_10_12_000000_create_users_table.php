@@ -15,16 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('nom');
             $table->string('prenom');
-            $table->string('adresse');
             $table->string('email')->unique();
-            $table->string('localisation');
-            $table->string('rotation');
-            $table->string('type_production');
-            $table->timestamp('email_verified_at')->nullable();
+            $table->string('adresse')->nullable();
             $table->string('password');
-            $table->string('typeuser');
-            $table->rememberToken();
+            $table->enum('type_utilisateur', ['consommateur', 'producteur']);
+            $table->boolean('abonnement')->default(false);
+            $table->softDeletes();
             $table->timestamps();
+
+            // NB: La méthode $table->softDeletes(); ajoute une colonne deleted_at à la table, permettant la suppression douce (soft delete).
         });
     }
 

@@ -1,66 +1,117 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📘 Documentation du Backend Laravel
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 📌 Introduction
 
-## About Laravel
+Ce projet est une API Laravel pour la gestion d'un système de commandes entre des **producteurs** et des **consommateurs**. L'API permet la gestion des utilisateurs, des produits, des commandes et des paiements.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🏗️ Architecture de la Base de Données
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 🗄️ Tables principales :
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. **Utilisateurs (`users`)**
 
-## Learning Laravel
+    - Contient les informations des utilisateurs (consommateurs et producteurs).
+    - Différenciation par le champ `type_utilisateur`.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+2. **Produits (`produits`)**
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+    - Gérés par les producteurs.
+    - Contient les informations sur les produits disponibles.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+3. **Commandes (`commandes`)**
 
-## Laravel Sponsors
+    - Passées par les consommateurs.
+    - Peuvent contenir plusieurs produits via `commande_produit`.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+4. **Table pivot `commande_produit`**
 
-### Premium Partners
+    - Permet d'associer plusieurs produits à une commande avec une quantité.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+5. **Paiements (`paiements`)**
+    - Associés aux commandes pour enregistrer les transactions.
 
-## Contributing
+## 📜 Schéma des Migrations
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### `users`
 
-## Code of Conduct
+-   `id` (clé primaire)
+-   `nom`, `prenom`, `email`, `adresse`
+-   `mot_de_passe`
+-   `type_utilisateur` (`producteur` ou `consommateur`)
+-   `abonnement` (optionnel pour des fonctionnalités avancées)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### `produits`
 
-## Security Vulnerabilities
+-   `id` (clé primaire)
+-   `nom_produit`, `description`, `prix`, `quantite_disponible`
+-   `producteur_id` (clé étrangère vers `users`)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### `commandes`
 
-## License
+-   `id` (clé primaire)
+-   `date_commande`
+-   `utilisateur_id` (clé étrangère vers `users`)
+-   `statut` (en attente, validée, livrée...)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### `commande_produit`
+
+-   `commande_id` (clé étrangère vers `commandes`)
+-   `produit_id` (clé étrangère vers `produits`)
+-   `quantite`
+
+### `paiements`
+
+-   `id` (clé primaire)
+-   `montant`, `date_paiement`, `mode_paiement`
+-   `commande_id` (clé étrangère vers `commandes`)
+
+## 📌 Endpoints de l'API
+
+### 1️⃣ Utilisateurs
+
+-   `POST /api/register` → Inscription
+-   `POST /api/login` → Connexion
+-   `GET /api/profile` → Profil utilisateur
+-   `PUT /api/users/{id}` → Mettre à jour un utilisateur
+-   `DELETE /api/users/{id}` → Supprimer un utilisateur
+
+### 2️⃣ Produits
+
+-   `GET /api/produits` → Liste des produits
+-   `GET /api/produits/{id}` → Détails d'un produit
+-   `POST /api/produits` → Ajouter un produit (producteur uniquement)
+-   `PUT /api/produits/{id}` → Mettre à jour un produit
+-   `DELETE /api/produits/{id}` → Supprimer un produit
+
+### 3️⃣ Commandes
+
+-   `GET /api/commandes` → Liste des commandes
+-   `GET /api/commandes/{id}` → Détails d'une commande
+-   `POST /api/commandes` → Passer une commande
+-   `PUT /api/commandes/{id}` → Mettre à jour une commande
+-   `DELETE /api/commandes/{id}` → Supprimer une commande
+
+### 4️⃣ Paiements
+
+-   `GET /api/paiements` → Liste des paiements
+-   `GET /api/paiements/{id}` → Voir un paiement
+-   `POST /api/paiements` → Effectuer un paiement
+
+## 📌 Bonnes Pratiques
+
+-   **Utilisation du pattern Repository-Service** pour une meilleure séparation des responsabilités.
+-   **Validation des données avec FormRequest** (`store`, `update`...).
+-   **Authentification sécurisée avec Laravel Sanctum**.
+-   **Utilisation des Policies et Gates** pour la gestion des autorisations.
+-   **Optimisation des performances avec Eloquent et les relations bien définies**.
+-   **Mise en place des tests unitaires et fonctionnels avec PHPUnit**.
+-   **Gestion des logs et monitoring avec Laravel Telescope**.
+-   **Utilisation des queues Laravel pour le traitement des tâches asynchrones**.
+
+## 🚀 Installation et Configuration
+
+```bash
+composer install
+php artisan migrate
+php artisan serve
+```

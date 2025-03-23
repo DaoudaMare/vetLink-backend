@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Commande;
+use App\Models\Producteur;
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -18,17 +21,32 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<int, string>
      */
     protected $fillable = [
-        'nom',
-        'prenom',
-        'adresse',
-        'email',
-        'localisation',
-        'rotation',
-        'type_production',
-        'produit_id',
-        'password',
-        'typeuser',
+        'nom', 
+        'prenom', 
+        'email', 
+        'adresse', 
+        'password', 
+        'type_utilisateur', 
+        'abonnement'
     ];
+
+    /**
+     * Un utilisateur peut être un producteur.
+     * Relation One-to-One (1-1)
+     */
+    public function producteur()
+    {
+        return $this->hasOne(Producteur::class, 'user_id');
+    }
+
+    /**
+     * Un utilisateur peut passer plusieurs commandes.
+     * Relation One-to-Many (1-N)
+     */
+    public function commandes()
+    {
+        return $this->hasMany(Commande::class, 'user_id');
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -52,5 +70,4 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get the produit associated with the user.
      */
-  
 }
