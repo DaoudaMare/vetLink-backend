@@ -23,13 +23,31 @@ class UserRepository implements UserInterface
     /**
      * Authentification d'un utilisateur
      */
-    public function login(array $credentials)
+    public function inLogin(array $credentials)
     {
-        if (!Auth::attempt($credentials)) {
-            return null;
+        
+        // 1️⃣ Récupérer l'utilisateur via l'email
+        $user = User::where('email', $credentials['email'])->first();
+
+        // 2️⃣ Vérifier si l'utilisateur existe
+        if (!$user) {
+            return response()->json(['message' => 'Utilisateur non trouvé'], 404);
         }
 
-        return Auth::user()->createToken('API Token')->plainTextToken;
+        // 3️⃣ Vérifier si le mot de passe est correct
+        if (!Hash::check($credentials['password'], $user->password)) {       
+            return response()->json(['message' => 'Mot de passe incorrect'], 401);
+        }
+
+        // 4️⃣ Générer un token (si tu utilises Laravel Sanctum ou Passport)
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        // 5️⃣ Retourner la réponse avec le token
+        return response()->json([
+            'message' => 'Authentification réussie',
+            'token' => $token,
+            'user' => $user
+        ]);
     }
 
     /**

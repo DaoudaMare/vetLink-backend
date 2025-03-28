@@ -1,8 +1,10 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use App\Enums\TypeSecteurActiviteEnum;
+use App\Enums\TypeUserEnum;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -12,18 +14,26 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('nom');
-            $table->string('prenom');
+            $table->uuid('id')->primary();
+            $table->string('nom_raison_sociale');
+            $table->enum('type_user',array_column(TypeUserEnum::cases(), 'value'));
+            $table->enum('secteur_activite', array_column(TypeSecteurActiviteEnum::cases(), 'value'))->nullable();
             $table->string('email')->unique();
-            $table->string('adresse')->nullable();
+            $table->string('telephone')->unique();
+            $table->string('pays');
+            $table->string('ville')->nullable();
+            $table->string('coordonnees_gps')->nullable();
+            $table->string('adresse_physique')->nullable();
+            $table->string('photo_profil')->nullable();
+            $table->text('description')->nullable();
             $table->string('password');
-            $table->enum('type_utilisateur', ['consommateur', 'producteur', 'admin']);
-            $table->boolean('abonnement')->default(false);
+            $table->json('liens_reseaux_sociaux')->nullable();
+            $table->uuid('user_id')->constrained('users')->onDelete('cascade')->nullable();
             $table->softDeletes();
             $table->timestamps();
 
             // NB: La méthode $table->softDeletes(); ajoute une colonne deleted_at à la table, permettant la suppression douce (soft delete).
+            // particulier: vendeur et aussi client
         });
     }
 

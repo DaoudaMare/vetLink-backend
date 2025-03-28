@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
@@ -13,17 +13,14 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Crée 20 utilisateurs aléatoires
-        User::factory()->count(20)->create();
-        
-         // Crée un admin spécifique
-         User::factory()->create([
-            'nom' => 'Admin',
-            'prenom' => 'Super',
+        // Créer un admin
+        $admin = User::factory()->admin()->create([
+            'nom_raison_sociale' => 'Admin User',
             'email' => 'admin@example.com',
-            'password' => bcrypt('admin123'),
-            'type_utilisateur' => 'admin',
-            'abonnement' => true,
+            'password' => Hash::make('password'),
         ]);
+
+         // Créer 100 utilisateurs avec d'autres types
+         User::factory()->count(10)->create();
     }
 }

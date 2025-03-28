@@ -9,6 +9,7 @@ use Database\Seeders\ProduitSeeder;
 use Database\Seeders\CommandeSeeder;
 use Database\Seeders\PaiementSeeder;
 use Database\Seeders\ProducteurSeeder;
+use Database\Seeders\ProfileProgressSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -25,10 +26,12 @@ class DatabaseSeeder extends Seeder
         // ]);
         $this->call([
             UserSeeder::class,
-            ProducteurSeeder::class,
-            ProduitSeeder::class,
-            CommandeSeeder::class,
-            PaiementSeeder::class,
+            ProfileProgressSeeder::class
+            // ProducteurSeeder::class,
+            // ProduitSeeder::class,
+            // CommandeSeeder::class,
+            // PaiementSeeder::class,
         ]);
     }
 }
+// php artisan db:seed --class=ProfileProgressSeeder
