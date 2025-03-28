@@ -12,8 +12,14 @@ class Produit extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nom_produit', 'description', 'prix', 'quantite_disponible', 'producteur_id'
+        'nom_produit', 'description', 'prix', 'quantite_disponible',   'producteur_id','image'
     ];
+
+    // Générer l'URL complète de l'image
+    public function getImageUrlAttribute()
+    {
+        return $this->image ? asset('storage/' . $this->image) : null;
+    }
 
     /**
      * Un produit appartient à un producteur.
