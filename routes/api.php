@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\Api\AuthentificationController;
+use App\Http\Controllers\Api\ProfileProggressController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\ProduitController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\AuthentificationController;
-use App\Http\Controllers\ProduitController;
+
 
 /*
 |--------------------------------------------------------------------------
