@@ -27,7 +27,7 @@ class ProfileProgressRepository implements ProfileProgressInterface
     }
     public function showUserProfile(string $id)
     {
-      $profileProgress = ProfileProgress::where('user_id', $id)->first();
+      $profileProgress = ProfileProgress::where('user_id', $id)->with('user')->first();
       return $profileProgress;
     }
   

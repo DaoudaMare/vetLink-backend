@@ -70,6 +70,7 @@ class ProfileProggressController extends Controller
     public function update(Request $request, string $id)
     {
         $user = $this->profileProgressRepository->showUserProfile($id);
+        dd($user);
         
         if (!$user) {
             return response()->json([
