@@ -26,8 +26,8 @@ class DatabaseSeeder extends Seeder
         // ]);
         $this->call([
             UserSeeder::class,
-            ProfileProgressSeeder::class
-            // ProducteurSeeder::class,
+            ProfileProgressSeeder::class,
+            ProducteurSeeder::class,
             // ProduitSeeder::class,
             // CommandeSeeder::class,
             // PaiementSeeder::class,

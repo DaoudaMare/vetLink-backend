@@ -21,7 +21,9 @@ class ProducteurFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(), // Associe à un utilisateur
+            'user_id' => function () {
+                return User::inRandomOrder()->first()->id ?? User::factory()->create()->id;
+            }, // Associe à un utilisateur
             'localisation' => $this->faker->city(),
             'notation' => $this->faker->randomFloat(1, 0, 5), // Entre 0.0 et 5.0
             'type_production' => $this->faker->randomElement(['fruits', 'légumes', 'céréales']),
