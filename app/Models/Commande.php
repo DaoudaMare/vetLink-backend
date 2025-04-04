@@ -35,5 +35,5 @@ class Commande extends Model
                     ->withTimestamps(); // On garde les dates de création/modification
     }
 
-    
+
 }

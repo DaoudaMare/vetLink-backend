@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateCommandeRequest extends FormRequest
+class StoreActiviteRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,10 +22,10 @@ class UpdateCommandeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'statut' => 'required|string|in:en cours,validée,livrées,annulée, non traitées',
-            'produits' => 'sometimes|array',
-            'produits.*.id' => 'required_with:produits|exists:produits,id',
-            'produits.*.quantite' => 'required_with:produits|integer|min:1'
+            'nom' => 'required|string|max:255',
+            'code' => 'required|string|unique:activites|max:10',
+            'exemples' => 'nullable|string',
+            'sous_secteur_id' => 'required|exists:sous_secteurs,id'
         ];
     }
 }

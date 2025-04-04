@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateCommandeRequest extends FormRequest
+class UpdateSousSecteurRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,10 +22,10 @@ class UpdateCommandeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'statut' => 'required|string|in:en cours,validée,livrées,annulée, non traitées',
-            'produits' => 'sometimes|array',
-            'produits.*.id' => 'required_with:produits|exists:produits,id',
-            'produits.*.quantite' => 'required_with:produits|integer|min:1'
+            'nom' => 'sometimes|string|max:255',
+            'code' => 'sometimes|string|max:10|unique:sous_secteurs,code,'.$this->sous_secteur,
+            'description' => 'nullable|string',
+            'secteur_id' => 'sometimes|exists:secteurs,id'
         ];
     }
 }
