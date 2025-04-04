@@ -17,9 +17,24 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->integer('prix');
             $table->integer('quantite_disponible');
+            $table->integer('ventes')->nullable()->default(0);
+            $table->decimal('note', 2, 1)->default(0);
+            $table->foreignId('secteur_id')->constrained('secteurs')->onDelete('cascade');
+            $table->foreignId('sous_secteur_id')->constrained('sous_secteurs')->onDelete('cascade');
+            $table->foreignId('activite_id')->constrained('activites')->onDelete('cascade');
             $table->foreignId('producteur_id')->constrained('producteurs')->onDelete('cascade');
-            $table->string('image');
+
+            // Champs pour la gestion des types (remplace l'ancien type_produit)
+            $table->string('code_type')->nullable()->comment('Code du type selon classification VetLink');
+            $table->string('unite_mesure')->default('kg');
+            $table->string('image_principale');
+            $table->json('images_secondaires')->nullable();
+            // Certification et labels
+            $table->boolean('est_bio')->default(false);
+            $table->json('certifications')->nullable();
+
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
