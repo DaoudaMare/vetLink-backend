@@ -23,8 +23,6 @@ return new class extends Migration
             $table->foreignId('sous_secteur_id')->constrained('sous_secteurs')->onDelete('cascade');
             $table->foreignId('activite_id')->constrained('activites')->onDelete('cascade');
             $table->foreignId('producteur_id')->constrained('producteurs')->onDelete('cascade');
-
-            // Champs pour la gestion des types (remplace l'ancien type_produit)
             $table->string('code_type')->nullable()->comment('Code du type selon classification VetLink');
             $table->string('unite_mesure')->default('kg');
             $table->string('image_principale');

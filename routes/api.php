@@ -1,15 +1,16 @@
 <?php
 
-use App\Http\Controllers\Api\ActiviteController;
 use App\Http\Controllers\Api\AuthentificationController;
 use App\Http\Controllers\Api\ProfileProggressController;
-use App\Http\Controllers\Api\SousSecteurController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\CommandeController;
 use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\SecteurController;
+use App\Http\Controllers\SousSecteurController;
+use App\Http\Controllers\ActiviteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 
 
