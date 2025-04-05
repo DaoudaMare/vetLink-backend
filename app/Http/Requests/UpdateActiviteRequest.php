@@ -23,7 +23,6 @@ class UpdateActiviteRequest extends FormRequest
     {
         return [
             'nom' => 'sometimes|string|max:255',
-            'code' => 'sometimes|string|max:10|unique:activites,code,'.$this->activite,
             'exemples' => 'nullable|string',
             'sous_secteur_id' => 'sometimes|exists:sous_secteurs,id'
         ];

@@ -23,7 +23,6 @@ class StoreActiviteRequest extends FormRequest
     {
         return [
             'nom' => 'required|string|max:255',
-            'code' => 'required|string|unique:activites|max:10',
             'exemples' => 'nullable|string',
             'sous_secteur_id' => 'required|exists:sous_secteurs,id'
         ];

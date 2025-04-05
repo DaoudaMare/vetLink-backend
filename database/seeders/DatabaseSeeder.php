@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             ProfileProgressSeeder::class,
             ProducteurSeeder::class,
-            // ProduitSeeder::class,
+            ProduitSeeder::class,
             // CommandeSeeder::class,
             // PaiementSeeder::class,
         ]);
