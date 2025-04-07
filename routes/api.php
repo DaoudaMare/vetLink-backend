@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\Api\AuthentificationController;
+use App\Http\Controllers\Api\ProfileProggressController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\ProduitController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\AuthentificationController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -19,24 +22,9 @@ use App\Http\Controllers\Api\AuthentificationController;
 Route::post('/register', [AuthentificationController::class, 'register']);
 Route::post('/login', [AuthentificationController::class, 'login']);
 
-
-Route::middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::apiResource('users', UserController::class);
+    Route::apiResource('profile_progress', ProfileProggressController::class);
     Route::post('/logout', [AuthentificationController::class, 'logout']);
-});
-
-
-
-Route::get('/addUser',function(){
-    $user = new App\Models\User();
-    $user->nom = 'Doe';
-    $user->prenom = 'John';
-    $user->email ='doe@gmail.com';
-    $user->adresse = 'Paris';
-    $user->password = 'doe123';
-    $user->type_utilisateur = 'consommateur';
-    $user->abonnement = true;
-    $user->save();
- 
-    return response()->json($user);
+    Route::apiResource('produits', ProduitController::class);
 });

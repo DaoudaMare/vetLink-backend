@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('prix');
             $table->integer('quantite_disponible');
             $table->foreignId('producteur_id')->constrained('producteurs')->onDelete('cascade');
+            $table->string('image');
             $table->timestamps();
         });
     }

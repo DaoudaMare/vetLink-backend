@@ -2,19 +2,24 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Repositories\UserRepository;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Users\StoreUserRequest;
+use App\Repositories\ProfileProgressRepository;
 
 
 class AuthentificationController extends Controller
 {
     protected $userRepository;
+    protected $profileProgressRepository;
 
-    public function __construct(UserRepository $userRepository)
+    public function __construct(UserRepository $userRepository, ProfileProgressRepository $profileProgressRepository)
     {
         $this->userRepository = $userRepository;
+        $this->profileProgressRepository = $profileProgressRepository;
+        
     }
 
     /**
@@ -23,10 +28,12 @@ class AuthentificationController extends Controller
     public function register(StoreUserRequest $request)
     {
         $user = $this->userRepository->register($request->validated());
-
+        $this->profileProgressRepository->createProfileProgress([
+            'user_id' => $user->id
+        ]);
         return response()->json([
             'message' => 'Utilisateur créé avec succès', 
-            'user' => $user
+        'user' => $user
         ], 201);
     }
     
@@ -37,25 +44,14 @@ class AuthentificationController extends Controller
     {
         // Validation des entrées
         $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
+            'email' => 'required',
+            'password' => 'required|string'
         ]);
-
-        // Appel du repository
-        $response = $this->userRepository->login($credentials);
-
-        if (!$response) {
-            return response()->json([
-                'message' => 'Identifiants incorrects'
-            ], 401);
-        }
-
-        return response()->json([
-            'message' => 'Connexion réussie',
-            'token' => $response
-        ], 200);
-    }
     
+        // Tentative de connexion via le repository
+        return $this->userRepository->inLogin($credentials);
+    
+    }    
     /**
      * Déconnexion de l'utilisateur
      */

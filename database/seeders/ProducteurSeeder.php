@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Producteur;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class ProducteurSeeder extends Seeder
 {
@@ -13,5 +14,6 @@ class ProducteurSeeder extends Seeder
     public function run(): void
     {
         //
+        Producteur::factory()->count(10)->create(); // Créer 10 producteurs
     }
 }

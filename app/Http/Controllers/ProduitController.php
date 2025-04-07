@@ -5,62 +5,101 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProduitRequest;
 use App\Http\Requests\UpdateProduitRequest;
 use App\Models\Produit;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProduitController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Afficher la liste des produits.
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $produits = Produit::all();
+        return response()->json([
+            'message' => 'Liste des produits récupérée avec succès',
+            'produits' => $produits
+        ], 200);
+    }
+    /**
+     * Enregistrer un nouveau produit.
+     */
+    public function store(StoreProduitRequest $request): JsonResponse
+    {
+        $this->authorize('create', Produit::class);
+
+        $data = $request->validated();
+
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('produits', 'public');
+        }
+
+        $produit = Produit::create($data);
+
+        return response()->json([
+            'message' => 'Produit créé avec succès.',
+            'produit' => $produit
+        ], 201);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Afficher un produit spécifique.
      */
-    public function create()
+    public function show(Produit $produit): JsonResponse
     {
-        //
+        $this->authorize('view', $produit);
+
+        return response()->json([
+            'message' => 'Produit récupéré avec succès',
+            'produit' => $produit
+        ], 200);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Mettre à jour un produit.
      */
-    public function store(StoreProduitRequest $request)
+    public function update(UpdateProduitRequest $request, Produit $produit): JsonResponse
     {
-        //
+        $this->authorize('update', $produit);
+
+        $data = $request->validated();
+
+
+        if ($request->hasFile('image')) {
+
+            if ($produit->image) {
+                Storage::disk('public')->delete($produit->image);
+            }
+
+            $data['image'] = $request->file('image')->store('produits', 'public');
+        }
+
+        $produit->update($data);
+
+        return response()->json([
+            'message' => 'Produit mis à jour avec succès.',
+            'produit' => $produit
+        ], 200);
     }
 
     /**
-     * Display the specified resource.
+     * Supprimer un produit.
      */
-    public function show(Produit $produit)
+    public function destroy(Produit $produit): JsonResponse
     {
-        //
-    }
+        $this->authorize('delete', $produit);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Produit $produit)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateProduitRequest $request, Produit $produit)
-    {
-        //
-    }
+        if ($produit->image) {
+            Storage::disk('public')->delete($produit->image);
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Produit $produit)
-    {
-        //
+        $produit->delete();
+
+        return response()->json([
+            'message' => 'Produit supprimé avec succès.'
+        ], 200);
     }
 }

@@ -2,8 +2,12 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\User;
+use App\Enums\TypeUserEnum;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+use App\Enums\TypeSecteurActiviteEnum;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -15,17 +19,40 @@ class UserFactory extends Factory
      *
      * @return array<string, mixed>
      */
+    protected $model = User::class;
+
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-            'remember_token' => Str::random(10),
+            'id' => Str::uuid(),
+            'nom_raison_sociale' => $this->faker->name,
+            'type_user' => $this->faker->randomElement(array_column(TypeUserEnum::cases(), 'value')),
+            'secteur_activite' => $this->faker->randomElement(array_column(TypeSecteurActiviteEnum::cases(), 'value')),
+            'email' => $this->faker->unique()->safeEmail,
+            'telephone' => $this->faker->unique()->phoneNumber,
+            'pays' => $this->faker->country,
+            'ville' => $this->faker->city,
+            'coordonnees_gps' => $this->faker->latitude . ',' . $this->faker->longitude,
+            'adresse_physique' => $this->faker->address,
+            'photo_profil' => $this->faker->imageUrl(),
+            'description' => $this->faker->paragraph,
+            'password' => Hash::make('password'), // Mot de passe par défaut
+            'liens_reseaux_sociaux' => json_encode([
+                'facebook' => $this->faker->url,
+                'twitter' => $this->faker->url,
+            ]),
+            'user_id' => null, // Vous pouvez ajuster cela si nécessaire
         ];
     }
 
+    public function admin()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'type_user' => TypeUserEnum::Admin->value,
+            ];
+        });
+    }
     /**
      * Indicate that the model's email address should be unverified.
      *
