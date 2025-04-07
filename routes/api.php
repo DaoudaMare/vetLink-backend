@@ -28,3 +28,8 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthentificationController::class, 'logout']);
     Route::apiResource('produits', ProduitController::class);
 });
+
+
+Route::get('/getUser', function (Request $request) {
+    return response()->json($request->user());
+});
