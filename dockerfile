@@ -2,8 +2,9 @@ FROM php:8.2-apache
 
 WORKDIR /var/www/html
 
-# 1. Installer les dépendances système + SQLite
-RUN apt-get update && apt-get install -y \
+# 1. Installer les dépendances système en étapes séparées pour mieux gérer les erreurs
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     git \
     zip \
     unzip \
@@ -12,65 +13,76 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     sqlite3 \
-    && docker-php-ext-install pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd zip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Installer Composer
+# 2. Installer les extensions PHP une par une pour un meilleur débogage
+RUN docker-php-ext-install pdo_mysql && \
+    docker-php-ext-install pdo_sqlite && \
+    docker-php-ext-install mbstring && \
+    docker-php-ext-install exif && \
+    docker-php-ext-install pcntl && \
+    docker-php-ext-install bcmath && \
+    docker-php-ext-install zip && \
+    docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    docker-php-ext-install gd
+
+# 3. Installer Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# 3. Créer la structure pour SQLite avant de copier les fichiers
-RUN mkdir -p database \
-    && touch database/database.sqlite \
-    && chown www-data:www-data database database/database.sqlite \
-    && chmod 775 database \
-    && chmod 664 database/database.sqlite
+# 4. Créer la structure pour SQLite avec des permissions adaptées
+RUN mkdir -p database && \
+    touch database/database.sqlite && \
+    chown www-data:www-data database database/database.sqlite && \
+    chmod 775 database && \
+    chmod 664 database/database.sqlite
 
-# 4. Copier UNIQUEMENT les fichiers nécessaires pour composer
+# 5. Copier les fichiers de dépendances
 COPY composer.json composer.lock ./
 
-# 5. Installer les dépendances (sans scripts)
+# 6. Installer les dépendances en mode production
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
-# 6. Copier TOUS les fichiers de l'application
+# 7. Copier le reste de l'application
 COPY . .
 
-# 7. Exécuter les scripts composer
-RUN composer run-script post-autoload-dump
+# 8. Configurer les permissions de manière sécurisée
+RUN chown -R www-data:www-data storage bootstrap/cache database && \
+    find storage bootstrap/cache database -type d -exec chmod 775 {} \; && \
+    find storage bootstrap/cache database -type f -exec chmod 664 {} \;
 
-# 8. Configurer les permissions
-RUN chown -R www-data:www-data storage bootstrap/cache database \
-    && find storage bootstrap/cache database -type d -exec chmod 775 {} \; \
-    && find storage bootstrap/cache database -type f -exec chmod 664 {} \;
-
-# 9. Configuration Apache
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf \
-    && a2enmod rewrite \
-    && a2enmod headers \
-    && a2enmod ssl
+# 9. Configuration Apache optimisée
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf && \
+    a2enmod rewrite headers ssl && \
+    a2dissite 000-default && \
+    a2ensite 000-default
 
 # Configuration du virtual host
 RUN echo "<VirtualHost *:80>\n\
+    ServerAdmin webmaster@localhost\n\
     DocumentRoot /var/www/html/public\n\
+    \n\
     <Directory /var/www/html/public>\n\
         Options -Indexes +FollowSymLinks\n\
         AllowOverride All\n\
         Require all granted\n\
     </Directory>\n\
+    \n\
     ErrorLog /var/log/apache2/error.log\n\
     CustomLog /var/log/apache2/access.log combined\n\
+    \n\
     <IfModule mod_headers.c>\n\
         Header always set Strict-Transport-Security \"max-age=63072000; includeSubDomains; preload\"\n\
     </IfModule>\n\
 </VirtualHost>" > /etc/apache2/sites-available/000-default.conf
 
-# 10. Préparation de l'application pour production
-RUN php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
-
-# 11. Exécuter les migrations et seeders (décommenter si nécessaire)
-# RUN php artisan migrate --force --seed
+# 10. Préparation de l'application pour la production
+RUN php artisan config:clear && \
+    php artisan config:cache && \
+    php artisan route:clear && \
+    php artisan route:cache && \
+    php artisan view:clear && \
+    php artisan view:cache
 
 EXPOSE 80
 CMD ["apache2-foreground"]
