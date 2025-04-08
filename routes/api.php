@@ -45,7 +45,7 @@ Route::get('/addUserTest', function () {
     try {
         $user = User::create([
             'id' => Str::uuid(),
-            'nom_raison_sociale' => 'Tech Innov SARL',
+            'nom_raison_sociale' => 'Tech Elevage SARL',
             'type_user' => 'entreprise',
             'secteur_activite' => 'elevage',
             'email' => 'contact@techinnov.com',
