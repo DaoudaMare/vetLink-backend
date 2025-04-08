@@ -40,43 +40,38 @@ Route::get('/getUser', function (Request $request) {
 
 
 
-Route::post('/register', function (Request $request) {
-    $validator = Validator::make($request->all(), [
-        'nom_raison_sociale' => 'required|string|max:255',
-        'type_user' => 'required|string|max:255',
-        'secteur_activite' => 'nullable|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
-        'telephone' => 'required|string|max:255|unique:users',
-        'pays' => 'required|string|max:255',
-        'ville' => 'nullable|string|max:255',
-        'coordonnees_gps' => 'nullable|string|max:255',
-        'adresse_physique' => 'nullable|string|max:255',
-        'photo_profil' => 'nullable|string|max:255',
-        'description' => 'nullable|string',
-        'liens_reseaux_sociaux' => 'nullable|array',
-        'password' => 'required|string|min:8|confirmed',
-    ]);
 
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 422);
+Route::get('/addUserTest', function () {
+    try {
+        $user = User::create([
+            'id' => Str::uuid(),
+            'nom_raison_sociale' => 'Tech Innov SARL',
+            'type_user' => 'entreprise',
+            'secteur_activite' => 'elevage',
+            'email' => 'contact@techinnov.com',
+            'telephone' => '+22670000000',
+            'pays' => 'Burkina Faso',
+            'ville' => 'Ouagadougou',
+            'coordonnees_gps' => '12.3714,-1.5197',
+            'adresse_physique' => 'Zone du bois',
+            'photo_profil' => 'https://example.com/photos/profil1.jpg',
+            'description' => 'Entreprise eleveag dans les TIC.',
+            'password' => Hash::make('password123'),
+            'liens_reseaux_sociaux' => json_encode([
+                'facebook' => 'https://facebook.com/techinnov',
+                'linkedin' => 'https://linkedin.com/company/techinnov'
+            ]),
+            'user_id' => null,
+        ]);
+
+        return response()->json([
+            'message' => 'Utilisateur créé avec succès !',
+            'user' => $user
+        ], 201);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'message' => 'Erreur lors de la création',
+            'error' => $e->getMessage()
+        ], 500);
     }
-
-    $user = User::create([
-        'id' => Str::uuid(),
-        'nom_raison_sociale' => $request->nom_raison_sociale,
-        'type_user' => $request->type_user,
-        'secteur_activite' => $request->secteur_activite,
-        'email' => $request->email,
-        'telephone' => $request->telephone,
-        'pays' => $request->pays,
-        'ville' => $request->ville,
-        'coordonnees_gps' => $request->coordonnees_gps,
-        'adresse_physique' => $request->adresse_physique,
-        'photo_profil' => $request->photo_profil,
-        'description' => $request->description,
-        'liens_reseaux_sociaux' => $request->liens_reseaux_sociaux ? json_encode($request->liens_reseaux_sociaux) : null,
-        'password' => Hash::make($request->password),
-    ]);
-
-    return response()->json(['user' => $user], 201);
 });
