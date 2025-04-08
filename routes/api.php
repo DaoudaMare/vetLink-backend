@@ -4,6 +4,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthentificationController;
@@ -37,26 +38,43 @@ Route::get('/getUser', function (Request $request) {
 });
 
 
-Route::post('/addUser',function (Request $request) {
-    $user = new User();
-    $user->nom_raison_sociale = $request->input('agriculteur');
-    $user->type_user = $request->input('agriculteur');
-    $user->secteur_activite = $request->input('agriculture');
-    $user->email = $request->input('daudamare21@gmail.com');
-    $user->telephone = $request->input('74856322');
-    $user->liens_reseaux_sociaux = json_encode($request->input('liens_reseaux_sociaux'));
-    $user->password = Hash::make($request->input('daoudamare12'));
-    $user->pays = $request->input('Burkina Faso');
-    $user->ville = $request->input('Bobo Dioulasso');
-    $user->coordonnees_gps = $request->input('12.345678, 98.765432');
-    $user->adresse_physique = $request->input('adresse_physique');
-    $user->description = $request->input('Je suis un pationner de l\'agriculture');
-    
-   
-    // Enregistrez l'utilisateur dans la base de données
-    if ($user->save()) {
-        return response()->json(['message' => 'Utilisateur ajouté avec succès'], 201);
-    } else {
-        return response()->json(['message' => 'Erreur lors de l\'ajout de l\'utilisateur'], 500);
+
+Route::post('/addUser', function (Request $request) {
+    // 1. Validation des données
+    $validator = Validator::make($request->all(), [
+        'nom_raison_sociale' => 'required|string|max:255',
+        'type_user' => 'required|string',
+        'secteur_activite' => 'required|string',
+        'email' => 'required|email|unique:users,email',
+        'telephone' => 'required|string',
+        'password' => 'required|string|min:8',
+        'pays' => 'required|string',
+        'ville' => 'required|string',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
     }
+
+    // 2. Création de l'utilisateur
+    $user = User::create([
+        'nom_raison_sociale' => $request->nom_raison_sociale,
+        'type_user' => $request->type_user,
+        'secteur_activite' => $request->secteur_activite,
+        'email' => $request->email,
+        'telephone' => $request->telephone,
+        'liens_reseaux_sociaux' => json_encode($request->liens_reseaux_sociaux ?? []),
+        'password' => Hash::make($request->password),
+        'pays' => $request->pays,
+        'ville' => $request->ville,
+        'coordonnees_gps' => $request->coordonnees_gps,
+        'adresse_physique' => $request->adresse_physique,
+        'description' => $request->description,
+    ]);
+
+    // 3. Réponse JSON
+    return response()->json([
+        'message' => 'Utilisateur créé avec succès',
+        'user' => $user
+    ], 201);
 });
