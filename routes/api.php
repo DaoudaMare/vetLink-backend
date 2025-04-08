@@ -39,42 +39,62 @@ Route::get('/getUser', function (Request $request) {
 
 
 
-Route::post('/addUser', function (Request $request) {
-    // 1. Validation des données
+Route::get('/addUser', function (Request $request) {
+    // 1. Validation des données avec messages personnalisés
     $validator = Validator::make($request->all(), [
         'nom_raison_sociale' => 'required|string|max:255',
-        'type_user' => 'required|string',
+        'type_user' => 'required|string|in:agriculteur,eleveur,autre',
         'secteur_activite' => 'required|string',
         'email' => 'required|email|unique:users,email',
-        'telephone' => 'required|string',
+        'telephone' => 'required|string|max:20',
         'password' => 'required|string|min:8',
         'pays' => 'required|string',
         'ville' => 'required|string',
+        'coordonnees_gps' => 'nullable|string',
+        'adresse_physique' => 'nullable|string',
+        'description' => 'nullable|string|max:500',
+        'liens_reseaux_sociaux' => 'nullable|array'
+    ], [
+        'required' => 'Le champ :attribute est obligatoire.',
+        'email.unique' => 'Cet email est déjà utilisé.'
     ]);
 
     if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 422);
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $validator->errors()
+        ], 422);
     }
 
     // 2. Création de l'utilisateur
-    $user = User::create([
-        'nom_raison_sociale' => $request->nom_raison_sociale,
-        'type_user' => $request->type_user,
-        'secteur_activite' => $request->secteur_activite,
-        'email' => $request->email,
-        'telephone' => $request->telephone,
-        'liens_reseaux_sociaux' => json_encode($request->liens_reseaux_sociaux ?? []),
-        'password' => Hash::make($request->password),
-        'pays' => $request->pays,
-        'ville' => $request->ville,
-        'coordonnees_gps' => $request->coordonnees_gps,
-        'adresse_physique' => $request->adresse_physique,
-        'description' => $request->description,
-    ]);
+    try {
+        $user = User::create([
+            'nom_raison_sociale' => $request->nom_raison_sociale,
+            'type_user' => $request->type_user,
+            'secteur_activite' => $request->secteur_activite,
+            'email' => $request->email,
+            'telephone' => $request->telephone,
+            'password' => Hash::make($request->password),
+            'pays' => $request->pays,
+            'ville' => $request->ville,
+            'coordonnees_gps' => $request->coordonnees_gps,
+            'adresse_physique' => $request->adresse_physique,
+            'description' => $request->description,
+            'liens_reseaux_sociaux' => $request->liens_reseaux_sociaux ? json_encode($request->liens_reseaux_sociaux) : null
+        ]);
 
-    // 3. Réponse JSON
-    return response()->json([
-        'message' => 'Utilisateur créé avec succès',
-        'user' => $user
-    ], 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'Utilisateur créé avec succès',
+            'user' => $user
+        ], 201);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors de la création',
+            'error' => $e->getMessage()
+        ], 500);
+    }
 });
