@@ -45,7 +45,7 @@ RUN mkdir -p database && \
     touch database/database.sqlite && \
     chown www-data:www-data database database/database.sqlite && \
     chmod 775 database && \
-    chmod 664 database/database.sqlite &&
+    chmod 664 database/database.sqlite
     
 
 # 6. Copier les fichiers de dépendances
