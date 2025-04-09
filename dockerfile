@@ -45,7 +45,8 @@ RUN mkdir -p database && \
     touch database/database.sqlite && \
     chown www-data:www-data database database/database.sqlite && \
     chmod 775 database && \
-    chmod 664 database/database.sqlite 
+    chmod 664 database/database.sqlite &&
+    
 
 # 6. Copier les fichiers de dépendances
 COPY composer.json composer.lock ./
@@ -92,7 +93,8 @@ RUN php artisan config:clear && \
     php artisan route:clear && \
     php artisan route:cache && \
     php artisan view:clear && \
-    php artisan view:cache
+    php artisan view:cache && \
+    php artisan migrate --force
 
 EXPOSE 80
 CMD ["apache2-foreground"]
