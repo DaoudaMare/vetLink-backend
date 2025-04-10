@@ -34,8 +34,8 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 });
 
 
-Route::get('/getUser', function (Request $request) {
-    return response()->json($request->user());
+Route::get('/getUser', function () {
+    return User::all();
 });
 
 
