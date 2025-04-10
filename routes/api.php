@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\ProduitController;
+
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthentificationController;
 use App\Http\Controllers\Api\ProfileProggressController;
@@ -27,10 +28,10 @@ Route::post('/register', [AuthentificationController::class, 'register']);
 Route::post('/login', [AuthentificationController::class, 'login']);
 
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
-    Route::apiResource('users', UserController::class);
+    Route::get('users', [UserController::class,'index']);
     Route::apiResource('profile_progress', ProfileProggressController::class);
     Route::post('/logout', [AuthentificationController::class, 'logout']);
-    Route::apiResource('produits', ProduitController::class);
+    Route::get('produits', [ProduitController::class, 'index']);
 });
 
 
