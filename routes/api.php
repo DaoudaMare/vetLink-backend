@@ -8,7 +8,10 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\ProduitController;
 
+use App\Http\Controllers\SecteurController;
+use App\Http\Controllers\ActiviteController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\SousSecteurController;
 use App\Http\Controllers\Api\AuthentificationController;
 use App\Http\Controllers\Api\ProfileProggressController;
 
