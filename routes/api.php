@@ -11,10 +11,6 @@ use App\Http\Controllers\ActiviteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-
-
-
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -30,11 +26,11 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [AuthentificationController::class, 'register']);
 Route::post('/login', [AuthentificationController::class, 'login']);
 
-// Routes pour la classification sectorielle (accessibles sans auth)
+// Routes pour la classification sectorielle accessibles sans auth
 Route::apiResource('secteurs', SecteurController::class)->only(['index', 'show']);
 Route::apiResource('sous-secteurs', SousSecteurController::class)->only(['index', 'show']);
 Route::apiResource('activites', ActiviteController::class)->only(['index', 'show']);
-// Recherche de produits par secteur (publique)
+// Recherche de produits par secteur
 Route::get('/secteurs/{secteur}/produits', [SecteurController::class, 'produits']);
 
 
@@ -45,7 +41,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthentificationController::class, 'logout']);
 
 
-    // Gestion de la classification sectorielle (complète)
+    // Gestion de la classification sectorielle complète
     Route::apiResource('secteurs', SecteurController::class)->except(['index', 'show']);
     Route::apiResource('sous-secteurs', SousSecteurController::class)->except(['index', 'show']);
     Route::apiResource('activites', ActiviteController::class)->except(['index', 'show']);
