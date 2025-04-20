@@ -61,4 +61,5 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
     // Statistiques
     Route::get('/stats/secteurs', [SecteurController::class, 'stats']);
+
 });
