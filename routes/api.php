@@ -59,6 +59,10 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::apiResource('commandes', CommandeController::class);
     Route::get('/commandes/user/{user}', [CommandeController::class, 'getCommandesByUser']);
 
+    // Historique avec filtres
+    Route::get('/commandes/user/{user}/historique/{filter?}', [CommandeController::class, 'historique'])
+    ->where('filter', 'retirer|recus')  ;
+
     // Statistiques
     Route::get('/stats/secteurs', [SecteurController::class, 'stats']);
 

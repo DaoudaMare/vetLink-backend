@@ -36,4 +36,27 @@ class Commande extends Model
     }
 
 
+    /**
+     * Scope pour filtrer les commandes par statut
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string|null $filter (retirer|recus)
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+
+     public function scopeWithStatut($query, ?string $filter = null)
+     {
+         return $query->when($filter, function ($q) use ($filter) {
+             $statut = match($filter) {
+                 'retirer' => 'annulée',  // Cohérent avec votre interface
+                 'recus'   => 'livrée',
+                 default   => null
+             };
+
+             if ($statut) {
+                 $q->where('statut', $statut);
+             }
+         });
+     }
+
 }

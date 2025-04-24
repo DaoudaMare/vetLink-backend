@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCommandeRequest;
 use App\Http\Requests\UpdateCommandeRequest;
 use App\Models\Commande;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 
 class CommandeController extends Controller
@@ -114,4 +115,39 @@ class CommandeController extends Controller
 
         return response()->json(['message' => 'Cette commande est déjà validée'], 400);
     }
+
+
+
+
+/**
+ * Récupérer l'historique des commandes filtré
+ */
+public function historique(User $user, $filter = null): JsonResponse
+{
+    $commandes = $user->commandes()
+        ->withStatut($filter)  // Utilisation du scope
+        ->with(['produits' => fn($q) => $q->select('id', 'nom', 'prix')])
+        ->orderBy('date_commande', 'desc')
+        ->get()
+        ->map(function ($commande) {
+            return [
+                'id' => $commande->id,
+                'date' => $commande->date_commande->format('d M, Y'),
+                'time' => $commande->date_commande->format('H:i'),
+                'statut' => $commande->statut,
+                'produits' => $commande->produits->map(fn($p) => [
+                    'nom' => $p->nom,
+                    'prix' => $p->pivot->quantite * $p->prix,
+                    'quantite' => $p->pivot->quantite
+                ]),
+                'total' => $commande->produits->sum(fn($p) => $p->pivot->quantite * $p->prix)
+            ];
+        });
+
+    return response()->json([
+        'filter' => $filter,
+        'count' => $commandes->count(),
+        'commandes' => $commandes
+    ]);
+}
 }
