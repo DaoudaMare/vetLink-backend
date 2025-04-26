@@ -37,7 +37,7 @@ class Commande extends Model
 
 
     /**
-     * Scope pour filtrer les commandes par statut
+     * Scope pour filtrer les commandes par statut pour historique des commandes.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param string|null $filter (retirer|recus)

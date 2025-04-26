@@ -83,13 +83,20 @@ class CommandeController extends Controller
     }
 
     /**
-     * Récupérer toutes les commandes d'un utilisateur spécifique.
-     */
-    public function getCommandesByUser($id): JsonResponse
-    {
-        $commandes = Commande::where('user_id', $id)->with('produits')->get();
-        return response()->json($commandes);
+ * Récupérer toutes les commandes d'un utilisateur spécifique.
+ */
+public function getCommandesByUser(User $user): JsonResponse
+{
+    // Vérification facultative des permissions
+    if (auth()->id() !== $user->id) {
+        abort(403, 'Vous ne pouvez pas accéder aux commandes d\'un autre utilisateur');
     }
+
+    // Charge les commandes via la relation définie dans le modèle User
+    $commandes = $user->commandes()->with('produits')->get();
+
+    return response()->json($commandes);
+}
 
     /**
      * Valider une commande et mettre à jour les ventes des produits.
@@ -150,4 +157,56 @@ public function historique(User $user, $filter = null): JsonResponse
         'commandes' => $commandes
     ]);
 }
+
+
+/**
+ *  Fonction Tableau de bord - Commandes en cours
+ */
+
+public function commandesEnCours()
+{
+    $commandes = Commande::with(['user:id,nom_raison_sociale,adresse_physique', 'produits'])
+        ->where('statut', 'en cours')
+        ->orderBy('date_commande', 'desc')
+        ->get()
+        ->map(function ($commande) {
+            return [
+                'id' => $commande->id,
+                'type_produit' => $commande->produits->pluck('nom')->implode(', '),
+                'date_commande' => $commande->date_commande->format('d/m/Y H:i'),
+                'user' => [
+                    'nom' => $commande->user->nom_raison_sociale,
+                    'adresse' => $commande->user->adresse_physique
+                ]
+            ];
+        });
+
+    return response()->json($commandes);
+}
+
+
+/**
+ *  Fonction Tableau de bord - Livraisons du jour
+ */
+
+public function livraisonsAujourdhui()
+{
+    $today = now()->format('Y-m-d');
+
+    $commandes = Commande::with(['user:id,nom_raison_sociale,adresse_physique', 'produits'])
+        ->where('statut', 'livrée')
+        ->whereDate('date_commande', $today)
+        ->get()
+        ->map(function ($commande) {
+            return [
+                'id' => $commande->id,
+                'type_produit' => $commande->produits->pluck('nom')->implode(', '),
+                'date_commande' => $commande->date_commande->format('H:i'),
+                'adresse_livraison' => $commande->user->adresse_physique
+            ];
+        });
+
+    return response()->json($commandes);
+}
+
 }

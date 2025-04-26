@@ -59,9 +59,16 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::apiResource('commandes', CommandeController::class);
     Route::get('/commandes/user/{user}', [CommandeController::class, 'getCommandesByUser']);
 
-    // Historique avec filtres
+    // Historique Commandes avec filtres
     Route::get('/commandes/user/{user}/historique/{filter?}', [CommandeController::class, 'historique'])
     ->where('filter', 'retirer|recus')  ;
+
+    // Tableau de bord - Commandes en cours
+    Route::get('/commandes/encours', [CommandeController::class, 'commandesEnCours']);
+
+    // Tableau de bord - Livraisons du jour
+    Route::get('/commandes/livraisons-aujourdhui', [CommandeController::class, 'livraisonsAujourdhui']);
+
 
     // Statistiques
     Route::get('/stats/secteurs', [SecteurController::class, 'stats']);

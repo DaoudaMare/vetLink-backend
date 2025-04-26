@@ -29,7 +29,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    
+
     protected $fillable = [
       'id',  'nom_raison_sociale', 'type_user', 'secteur_activite', 'email', 'telephone', 'liens_reseaux_sociaux', 'password',
         'pays', 'ville', 'coordonnees_gps', 'adresse_physique', 'photo_profil', 'description',
@@ -54,7 +54,7 @@ class User extends Authenticatable
         return $this->hasOne(Producteur::class, 'user_id');
     }
     /**
-     * Relation One-to-One (1-1) : 
+     * Relation One-to-One (1-1) :
      * Un utilisateur possède une progression de profil.
      */
     public function profileProgress()
@@ -63,7 +63,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Relation One-to-One (1-1) : 
+     * Relation One-to-One (1-1) :
      * Un utilisateur peut être une association.
      */
     public function association()
@@ -72,7 +72,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Relation One-to-One (1-1) : 
+     * Relation One-to-One (1-1) :
      * Un utilisateur peut être une entreprise.
      */
     public function entreprise()
@@ -81,7 +81,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Relation One-to-One (1-1) : 
+     * Relation One-to-One (1-1) :
      * Un utilisateur peut être une startup.
      */
     public function startup()
@@ -90,7 +90,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Relation One-to-One (1-1) : 
+     * Relation One-to-One (1-1) :
      * Un utilisateur peut être un groupement.
      */
     public function groupement()
@@ -111,7 +111,7 @@ class User extends Authenticatable
      * Un utilisateur peut updload plusieurs documents.
      * Relation One-to-Many (1-N)
      */
-    
+
     public function commandes()
     {
         return $this->hasMany(Commande::class, 'user_id');
