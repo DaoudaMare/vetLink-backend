@@ -42,11 +42,6 @@ class ProduitController extends Controller
             $query->where('code_type', $request->code_type);
         }
 
-        // Filtrage bio
-        if ($request->has('est_bio')) {
-            $query->where('est_bio', $request->boolean('est_bio'));
-        }
-
         $produits = $query->get();
 
         return response()->json([
@@ -243,18 +238,5 @@ class ProduitController extends Controller
         ]);
     }
 
-    /**
-     * Produits bio
-     */
-    public function produitsBio(): JsonResponse
-    {
-        $produits = Produit::with(['secteur', 'sousSecteur'])
-            ->where('est_bio', true)
-            ->get();
 
-        return response()->json([
-            'message' => 'Liste des produits bio',
-            'produits' => $produits
-        ]);
-    }
 }

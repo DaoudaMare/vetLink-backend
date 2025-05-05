@@ -27,7 +27,6 @@ return new class extends Migration
             $table->string('unite_mesure')->default('kg');
             $table->string('image_principale');
             $table->json('images_secondaires')->nullable();
-            $table->boolean('est_bio')->default(false);
             $table->timestamps();
             $table->softDeletes();
         });

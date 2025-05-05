@@ -51,7 +51,6 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::get('/produits/search', [ProduitController::class, 'search']);
     Route::get('/produits/sous-secteur/{sousSecteur}', [ProduitController::class, 'produitsParSousSecteur']);
     Route::get('/produits/activite/{activite}', [ProduitController::class, 'produitsParActivite']);
-    Route::get('/produits/bio', [ProduitController::class, 'produitsBio']);
     Route::get('/produits/top-vendus', [ProduitController::class, 'topVendus']);
     Route::get('/produits/top-apprecies', [ProduitController::class, 'topApprecies']);
 
