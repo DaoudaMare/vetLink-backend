@@ -13,17 +13,20 @@ return new class extends Migration
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('type_document'); // Type de document (ex. "Carte d'identité", "Certificat de producteur", etc)
+            $table->uuid('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->string('type_document'); // Type de document (ex. Carte d'identité, etc.)
             $table->string('file_path'); // Chemin du fichier
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending'); // Statut du document
-            $table->text('comments')->nullable(); // Commentaires en cas de rejet
-            $table->foreignId('moderateur_id')->constrained('users')->onDelete('cascade')->nullable(); //celu qui traite le document
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->text('comments')->nullable(); // Commentaires
+
+            $table->uuid('moderateur_id')->nullable();
+            $table->foreign('moderateur_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      */

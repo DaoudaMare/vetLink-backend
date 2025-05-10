@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('profile_progress', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('user_id')->constrained('users')->onDelete('cascade');
-            $table->integer('completion_percentage')->default(10); // Pourcentage de complétion du profil
-            $table->enum('status', ['incomplete', 'verified'])->default('incomplete'); // Statut du profil
-            $table->timestamp('last_reminder_at')->nullable(); // Dernière relance envoyée
+            $table->uuid('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->integer('completion_percentage')->default(10);
+            $table->enum('status', ['incomplete', 'verified'])->default('incomplete');
+            $table->timestamp('last_reminder_at')->nullable();
             $table->timestamps();
         });
     }

@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('groupements', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->uuid('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->integer('nombre_membres');
             $table->text('activites_principales');
             $table->text('produits_commercialises');
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      */
