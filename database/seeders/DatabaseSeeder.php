@@ -3,13 +3,16 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use Database\Seeders\UserSeeder;
-use Database\Seeders\ProduitSeeder;
+use Database\Seeders\ActiviteSeeder;
 use Database\Seeders\CommandeSeeder;
 use Database\Seeders\PaiementSeeder;
 use Database\Seeders\ProducteurSeeder;
+use Database\Seeders\ProduitSeeder;
 use Database\Seeders\ProfileProgressSeeder;
+use Database\Seeders\SecteurSeeder;
+use Database\Seeders\SousSecteurSeeder;
+use Database\Seeders\UserSeeder;
+use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -25,6 +28,9 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         $this->call([
+             SecteurSeeder::class,
+            SousSecteurSeeder::class,
+            ActiviteSeeder::class,
             UserSeeder::class,
             ProfileProgressSeeder::class,
             ProducteurSeeder::class,
