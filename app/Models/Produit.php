@@ -35,7 +35,8 @@ class Produit extends Model
         'certifications' => 'array',
         'est_bio' => 'boolean',
         'prix' => 'decimal:2',
-        'note' => 'decimal:1'
+        'note' => 'decimal:1',
+        'images_secondaires' => 'array'
     ];
 
     protected $appends = [
@@ -55,15 +56,25 @@ class Produit extends Model
      * Générer les URLs complètes des images secondaires
      */
     public function getImagesSecondairesUrlsAttribute()
-    {
-        if (!$this->images_secondaires) {
-            return null;
-        }
-
-        return array_map(function($image) {
-            return asset('storage/' . $image);
-        }, $this->images_secondaires);
+{
+    if (!$this->images_secondaires) {
+        return null;
     }
+
+    // Décoder la chaîne JSON si nécessaire
+    $images = is_string($this->images_secondaires)
+        ? json_decode($this->images_secondaires, true)
+        : $this->images_secondaires;
+
+    // Si le décodage échoue ou que le champ est vide, retourner null
+    if (empty($images)) {
+        return null;
+    }
+
+    return array_map(function($image) {
+        return asset('storage/' . $image);
+    }, $images);
+}
 
     /**
      * Relation avec le producteur

@@ -34,6 +34,8 @@ Route::apiResource('activites', ActiviteController::class)->only(['index', 'show
 Route::get('/secteurs/{secteur}/produits', [SecteurController::class, 'produits']);
 
 
+
+
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     // Gestion des utilisateurs
     Route::apiResource('users', UserController::class);
@@ -46,13 +48,14 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::apiResource('sous-secteurs', SousSecteurController::class)->except(['index', 'show']);
     Route::apiResource('activites', ActiviteController::class)->except(['index', 'show']);
 
-    // Produits
-    Route::apiResource('produits', ProduitController::class);
+
+    // produit
     Route::get('/produits/search', [ProduitController::class, 'search']);
     Route::get('/produits/sous-secteur/{sousSecteur}', [ProduitController::class, 'produitsParSousSecteur']);
     Route::get('/produits/activite/{activite}', [ProduitController::class, 'produitsParActivite']);
     Route::get('/produits/top-vendus', [ProduitController::class, 'topVendus']);
     Route::get('/produits/top-apprecies', [ProduitController::class, 'topApprecies']);
+    Route::apiResource('produits', ProduitController::class);
 
     // Commandes
     Route::apiResource('commandes', CommandeController::class);
