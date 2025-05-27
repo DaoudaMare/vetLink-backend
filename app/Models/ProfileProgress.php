@@ -21,13 +21,13 @@ class ProfileProgress extends Model
      {
          return $this->belongsTo(User::class, 'user_id');
      }
-     
+
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($profileP) {
-            $profileP->id = Str::uuid(); 
+            $profileP->id = Str::uuid();
         });
     }
 

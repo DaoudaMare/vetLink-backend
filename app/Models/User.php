@@ -31,19 +31,24 @@ class User extends Authenticatable
      */
 
     protected $fillable = [
-      'id',  'nom_raison_sociale', 'type_user', 'secteur_activite', 'email', 'telephone', 'liens_reseaux_sociaux', 'password',
-        'pays', 'ville', 'coordonnees_gps', 'adresse_physique', 'photo_profil', 'description',
+      'id',  'nom_raison_sociale', 'type_user',  'email', 'telephone',  'password',
+        'pays', 'ville', 'coordonnees_gps', 'adresse_physique', 'photo_profil',
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
+    public $incrementing = false;
+    protected $keyType = 'string';
 
-        static::creating(function ($user) {
-            $user->id = Str::uuid(); // Génère un UUID lors de la création
-            $user->liens_reseaux_sociaux = json_encode($user->liens_reseaux_sociaux);
-        });
-    }
+   protected static function boot()
+{
+    parent::boot();
+
+    static::creating(function ($model) {
+        if (empty($model->{$model->getKeyName()})) {
+            $model->{$model->getKeyName()} = Str::uuid()->toString();
+        }
+    });
+}
+
     /**
      * Un utilisateur peut être un producteur.
      * Relation One-to-One (1-1)
@@ -59,7 +64,7 @@ class User extends Authenticatable
      */
     public function profileProgress()
     {
-        return $this->hasOne(ProfileProgress::class);
+        return $this->hasOne(ProfileProgress::class, 'user_id');
     }
 
     /**
@@ -135,7 +140,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'type_user' => TypeUserEnum::class,
-        'secteur_activite' => TypeSecteurActiviteEnum::class,
         'id' => 'string'
     ];
+
+
+
 }

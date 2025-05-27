@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\TypeSecteurActiviteEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,11 +16,13 @@ return new class extends Migration
             $table->id();
             $table->uuid('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->string('localisation');
+            $table->enum('type_entite', ['particulier', 'association', 'entreprise', 'startup']);
             $table->decimal('notation', 2, 1)->default(0);
+            $table->enum('secteur_activite', array_column(TypeSecteurActiviteEnum::cases(), 'value'))->nullable();
             $table->string('type_production');
-            $table->json('certifications')->nullable();
             $table->string('mode_paiement');
+            $table->json('liens_reseaux_sociaux')->nullable();
+             $table->text('description')->nullable();
             $table->timestamps();
 
             /**

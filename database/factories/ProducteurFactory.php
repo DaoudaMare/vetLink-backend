@@ -2,8 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
+use App\Enums\TypeSecteurActiviteEnum;
 use App\Models\Producteur;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,16 +20,21 @@ class ProducteurFactory extends Factory
     protected $model = Producteur::class;
 
     public function definition(): array
-    {
-        return [
+    {return [
             'user_id' => function () {
                 return User::inRandomOrder()->first()->id ?? User::factory()->create()->id;
-            }, // Associe à un utilisateur
-            'localisation' => $this->faker->city(),
-            'notation' => $this->faker->randomFloat(1, 0, 5), // Entre 0.0 et 5.0
+            },
+            'type_entite' => $this->faker->randomElement(['particulier', 'association', 'entreprise', 'startup']),
+            'notation' => $this->faker->randomFloat(1, 0, 5),
+            'secteur_activite' => $this->faker->randomElement(array_column(TypeSecteurActiviteEnum::cases(), 'value')),
             'type_production' => $this->faker->randomElement(['fruits', 'légumes', 'céréales']),
-            'certifications' => json_encode($this->faker->randomElements(['Bio', 'Équitable', 'Sans OGM'], rand(0, 3))),
             'mode_paiement' => $this->faker->randomElement(['espèces', 'carte bancaire', 'virement']),
+            'liens_reseaux_sociaux' => [
+                'facebook' => $this->faker->url(),
+                'twitter' => $this->faker->url(),
+                'instagram' => $this->faker->url(),
+            ],
+            'description' => $this->faker->paragraph(),
         ];
     }
 }

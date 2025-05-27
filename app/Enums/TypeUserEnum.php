@@ -10,6 +10,7 @@ enum TypeUserEnum:string
   case Startup = 'startup';
   case Admin = 'admin';
   case Moderateur = 'moderateur';
+   case Consommateur = 'consommateur';
 
   public function label(): string{
     return match ($this) {
@@ -18,7 +19,8 @@ enum TypeUserEnum:string
      self::Entreprise  => 'entreprise',
      self::Startup  => 'startup',
      self::Admin  => 'admin',
-     self::Moderateur  => 'moderateur',   
+     self::Moderateur  => 'moderateur',
+     self::Consommateur => 'consommateur',
     };
   }
 }

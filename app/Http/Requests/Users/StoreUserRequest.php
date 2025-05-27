@@ -11,7 +11,7 @@ class StoreUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; // Autorise tout le monde à faire cette requête
+        return true;
     }
 
      /**
@@ -20,9 +20,8 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nom_raison_sociale' => 'required|string|max:255',  
+            'nom_raison_sociale' => 'required|string|max:255',
             'type_user' => 'required|in:particulier,association,entreprise,startup,admin,moderateur',
-            'secteur_activite' => 'nullable|in:production_agricole,elevage,transformation,distribution,export,peche', 
             'email' => 'required|email|unique:users,email',
             'telephone' => 'required|string|unique:users,telephone',
             'pays' => 'required|string|max:255',
@@ -30,9 +29,8 @@ class StoreUserRequest extends FormRequest
             'coordonnees_gps' => 'nullable|string|max:255',
             'adresse_physique' => 'nullable|string|max:255',
             'photo_profil' => 'nullable|string',
-            'description' => 'nullable|string',
             'password' => 'required|string|min:6',
-            'liens_reseaux_sociaux' => 'nullable|json',
+
         ];
     }
 
@@ -44,7 +42,7 @@ class StoreUserRequest extends FormRequest
         return [
             'nom_raison_sociale.required' => 'Le nom ou raison sociale est obligatoire.',
             'type_user.required' => 'Le type d\'utilisateur est requis.',
-            'type_user.in' => 'Le type d\'utilisateur doit être particulier soit association soit entreprise soit startup soit startup.',
+            'type_user.in' => 'Le type d\'utilisateur doit être particulier soit association soit entreprise soit startup soit startup soit consommateur.',
             'secteur_activite.in' => 'Le type de secteur d\'activité doit être production_agricole soit elevage soit transformation soit distribution soit export soit peche.',
             'email.required' => 'L\'adresse email est obligatoire.',
             'email.email' => 'L\'adresse email n\'est pas valide.',
@@ -55,7 +53,7 @@ class StoreUserRequest extends FormRequest
             'password.min' => 'Le mot de passe doit contenir au moins 6 caractères.',
             'pays.required' => 'Le pays est requis.',
             'photo_profil.string' => 'La photo de profil doit être une chaîne de caractères.',
-            'liens_reseaux_sociaux.json' => 'Les liens des réseaux sociaux doivent être un format JSON valide.',
+
         ];
     }
 }

@@ -17,7 +17,7 @@ class UserController extends Controller
         $this->userRepository = $userRepository;
     }
 
-    
+
     /**
      * Liste des utilisateurs (GET /api/users)
      */
@@ -25,7 +25,7 @@ class UserController extends Controller
     {
         $user = $this->userRepository->getAll();
         return response()->json([
-            'message' => 'Listes des utilisateur recupéré avec succès', 
+            'message' => 'Listes des utilisateur recupéré avec succès',
             'user' => $user
         ], 201);
     }
@@ -59,7 +59,7 @@ class UserController extends Controller
         $updatedUser = $this->userRepository->update($user, $request->validated());
 
         return response()->json([
-            'message' => 'Utilisateur mis à jour', 
+            'message' => 'Utilisateur mis à jour',
             'user' => $updatedUser
         ], 200);
     }

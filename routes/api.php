@@ -1,15 +1,18 @@
 <?php
 
+use App\Http\Controllers\ActiviteController;
 use App\Http\Controllers\Api\AuthentificationController;
 use App\Http\Controllers\Api\ProfileProggressController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\CommandeController;
+use App\Http\Controllers\ProducteurController;
 use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\SecteurController;
 use App\Http\Controllers\SousSecteurController;
-use App\Http\Controllers\ActiviteController;
+use App\Models\Producteur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +33,7 @@ Route::post('/login', [AuthentificationController::class, 'login']);
 Route::apiResource('secteurs', SecteurController::class)->only(['index', 'show']);
 Route::apiResource('sous-secteurs', SousSecteurController::class)->only(['index', 'show']);
 Route::apiResource('activites', ActiviteController::class)->only(['index', 'show']);
+
 // Recherche de produits par secteur
 Route::get('/secteurs/{secteur}/produits', [SecteurController::class, 'produits']);
 
@@ -41,6 +45,8 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::apiResource('users', UserController::class);
     Route::apiResource('profile_progress', ProfileProggressController::class);
     Route::post('/logout', [AuthentificationController::class, 'logout']);
+    // completer profile producteur
+    Route::apiResource('producers', ProducteurController::class);
 
 
     // Gestion de la classification sectorielle complète

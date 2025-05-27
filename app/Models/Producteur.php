@@ -2,22 +2,31 @@
 
 namespace App\Models;
 
-use App\Models\User;
+use App\Enums\TypeSecteurActiviteEnum;
 use App\Models\Produit;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Producteur extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'localisation', 'notation', 'type_production', 'certifications', 'mode_paiement'
-    ];
+    'user_id',
+    'type_entite',
+    'notation',
+    'secteur_activite',
+    'type_production',
+    'mode_paiement',
+    'liens_reseaux_sociaux',
+    'description'
+];
 
-    protected $casts = [
-        'certifications' => 'array',
-    ];
+protected $casts = [
+    'liens_reseaux_sociaux' => 'array',
+     'secteur_activite' => TypeSecteurActiviteEnum::class
+];
 
      /**
      * Un producteur est lié à un utilisateur.

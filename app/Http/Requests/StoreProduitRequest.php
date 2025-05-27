@@ -4,6 +4,10 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+use App\Models\Secteur;
+use App\Models\SousSecteur;
+use App\Models\Activite;
+
 class StoreProduitRequest extends FormRequest
 {
     /**
@@ -99,4 +103,34 @@ class StoreProduitRequest extends FormRequest
             ]);
         }
     }
+
+
+
+protected function withValidator($validator)
+{
+    $validator->after(function ($validator) {
+        $secteurId = $this->input('secteur_id');
+        $sousSecteurId = $this->input('sous_secteur_id');
+        $activiteId = $this->input('activite_id');
+
+        // Vérifie que le sous-secteur appartient bien au secteur
+        $sousSecteur = SousSecteur::where('id', $sousSecteurId)
+            ->where('secteur_id', $secteurId)
+            ->first();
+
+        if (!$sousSecteur) {
+            $validator->errors()->add('sous_secteur_id', 'Le sous-secteur ne correspond pas au secteur sélectionné.');
+        }
+
+        // Vérifie que l’activité appartient bien au sous-secteur
+        $activite = Activite::where('id', $activiteId)
+            ->where('sous_secteur_id', $sousSecteurId)
+            ->first();
+
+        if (!$activite) {
+            $validator->errors()->add('activite_id', 'L\'activité ne correspond pas au sous-secteur sélectionné.');
+        }
+    });
+}
+
 }

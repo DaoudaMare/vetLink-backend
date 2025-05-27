@@ -22,28 +22,22 @@ class UserFactory extends Factory
     protected $model = User::class;
 
     public function definition(): array
-    {
-        return [
-            'id' => Str::uuid(),
-            'nom_raison_sociale' => $this->faker->name,
-            'type_user' => $this->faker->randomElement(array_column(TypeUserEnum::cases(), 'value')),
-            'secteur_activite' => $this->faker->randomElement(array_column(TypeSecteurActiviteEnum::cases(), 'value')),
-            'email' => $this->faker->unique()->safeEmail,
-            'telephone' => $this->faker->unique()->phoneNumber,
-            'pays' => $this->faker->country,
-            'ville' => $this->faker->city,
-            'coordonnees_gps' => $this->faker->latitude . ',' . $this->faker->longitude,
-            'adresse_physique' => $this->faker->address,
-            'photo_profil' => $this->faker->imageUrl(),
-            'description' => $this->faker->paragraph,
-            'password' => Hash::make('password'), // Mot de passe par défaut
-            'liens_reseaux_sociaux' => json_encode([
-                'facebook' => $this->faker->url,
-                'twitter' => $this->faker->url,
-            ]),
-            'user_id' => null, // Vous pouvez ajuster cela si nécessaire
-        ];
-    }
+{
+    return [
+        'id' => Str::uuid(),
+        'nom_raison_sociale' => $this->faker->name,
+        'type_user' => $this->faker->randomElement(array_column(TypeUserEnum::cases(), 'value')),
+        'email' => $this->faker->unique()->safeEmail,
+        'telephone' => $this->faker->unique()->phoneNumber,
+        'pays' => $this->faker->country,
+        'ville' => $this->faker->city,
+        'coordonnees_gps' => $this->faker->latitude . ',' . $this->faker->longitude,
+        'adresse_physique' => $this->faker->address,
+        'photo_profil' => $this->faker->imageUrl(),
+        'password' => Hash::make('password'),
+    ];
+}
+
 
     public function admin()
     {
