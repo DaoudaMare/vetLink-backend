@@ -61,6 +61,9 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::get('/produits/activite/{activite}', [ProduitController::class, 'produitsParActivite']);
     Route::get('/produits/top-vendus', [ProduitController::class, 'topVendus']);
     Route::get('/produits/top-apprecies', [ProduitController::class, 'topApprecies']);
+    Route::get('/produits/tri/prix-asc', [ProduitController::class, 'triParPrixAsc']);
+    Route::get('/produits/tri/prix-desc', [ProduitController::class, 'triParPrixDesc']);
+
     Route::apiResource('produits', ProduitController::class);
 
     // Commandes

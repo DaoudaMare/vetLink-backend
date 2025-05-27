@@ -238,5 +238,29 @@ class ProduitController extends Controller
         ]);
     }
 
+    public function triParPrixAsc(): JsonResponse
+{
+    $produits = Produit::with(['secteur', 'sousSecteur', 'activite', 'producteur'])
+        ->orderBy('prix', 'asc')
+        ->get();
+
+    return response()->json([
+        'message' => 'Produits triés par prix croissant',
+        'produits' => $produits,
+    ], 200);
+}
+
+public function triParPrixDesc(): JsonResponse
+{
+    $produits = Produit::with(['secteur', 'sousSecteur', 'activite', 'producteur'])
+        ->orderBy('prix', 'desc')
+        ->get();
+
+    return response()->json([
+        'message' => 'Produits triés par prix décroissant',
+        'produits' => $produits,
+    ], 200);
+}
+
 
 }
