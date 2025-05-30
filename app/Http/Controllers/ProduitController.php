@@ -262,11 +262,47 @@ public function triParPrixDesc(): JsonResponse
     ], 200);
 }
 
+    /**
+     * Produits les plus recents
+     */
+
 public function produitsRecents()
 {
     $produits = Produit::orderBy('created_at', 'desc')->get();
 
     return response()->json($produits);
+}
+
+public function search(Request $request)
+{
+    $query = Produit::query();
+
+    if ($request->filled('nom')) {
+        $query->where('nom_produit', 'like', '%' . $request->nom . '%');
+    }
+
+    if ($request->filled('secteur_id')) {
+        $query->where('secteur_id', $request->secteur_id);
+    }
+
+    if ($request->filled('sous_secteur_id')) {
+        $query->where('sous_secteur_id', $request->sous_secteur_id);
+    }
+
+    if ($request->filled('min_prix')) {
+        $query->where('prix', '>=', $request->min_prix);
+    }
+
+    if ($request->filled('max_prix')) {
+        $query->where('prix', '<=', $request->max_prix);
+    }
+
+    $produits = $query->get();
+
+    return response()->json([
+        'message' => 'Résultats de la recherche',
+        'produits' => $produits
+    ]);
 }
 
 
