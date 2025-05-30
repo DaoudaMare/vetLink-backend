@@ -262,5 +262,12 @@ public function triParPrixDesc(): JsonResponse
     ], 200);
 }
 
+public function produitsRecents()
+{
+    $produits = Produit::orderBy('created_at', 'desc')->get();
+
+    return response()->json($produits);
+}
+
 
 }
