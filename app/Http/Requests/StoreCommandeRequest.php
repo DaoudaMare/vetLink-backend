@@ -22,7 +22,6 @@ class StoreCommandeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|exists:users,id',
             'produits' => 'required|array',
             'produits.*.id' => 'required|exists:produits,id',
             'produits.*.quantite' => 'required|integer|min:1'

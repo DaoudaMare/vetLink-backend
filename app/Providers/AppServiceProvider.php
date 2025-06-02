@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Interfaces\UserInterface;
+use App\Models\Avis;
+use App\Observers\AvisObserver;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -15,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(
-            UserInterface::class, 
+            UserInterface::class,
             UserRepository::class
         );
     }
@@ -26,6 +28,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
-        //
+        Avis::observe(AvisObserver::class);
     }
 }

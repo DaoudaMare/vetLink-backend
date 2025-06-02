@@ -10,6 +10,6 @@ class CommandeProduit extends Model
     use HasFactory;
 
     protected $fillable = [
-        'commande_id', 'produit_id', 'quantite'
+        'commande_id', 'produit_id', 'quantite', 'statut'
     ];
 }

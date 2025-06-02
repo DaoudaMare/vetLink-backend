@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('prix');
             $table->integer('quantite_disponible');
             $table->integer('ventes')->nullable()->default(0);
-            $table->decimal('note', 2, 1)->default(0);
+            $table->decimal('note', 3, 1)->default(0);
             $table->foreignId('secteur_id')->constrained('secteurs')->onDelete('cascade');
             $table->foreignId('sous_secteur_id')->constrained('sous_secteurs')->onDelete('cascade');
             $table->foreignId('activite_id')->constrained('activites')->onDelete('cascade');

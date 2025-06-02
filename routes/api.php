@@ -1,9 +1,10 @@
 <?php
-
 use App\Http\Controllers\ActiviteController;
 use App\Http\Controllers\Api\AuthentificationController;
 use App\Http\Controllers\Api\ProfileProggressController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\AvisController;
+use App\Http\Controllers\AvisProducteurController;
 use App\Http\Controllers\CommandeController;
 use App\Http\Controllers\ProducteurController;
 use App\Http\Controllers\ProduitController;
@@ -13,17 +14,6 @@ use App\Models\Producteur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
 
 // Routes publiques
 Route::post('/register', [AuthentificationController::class, 'register']);
@@ -37,25 +27,26 @@ Route::apiResource('activites', ActiviteController::class)->only(['index', 'show
 // Recherche de produits par secteur
 Route::get('/secteurs/{secteur}/produits', [SecteurController::class, 'produits']);
 
-
-
-
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     // Gestion des utilisateurs
     Route::apiResource('users', UserController::class);
     Route::apiResource('profile_progress', ProfileProggressController::class);
     Route::post('/logout', [AuthentificationController::class, 'logout']);
-    // completer profile producteur
     Route::apiResource('producers', ProducteurController::class);
-
 
     // Gestion de la classification sectorielle complète
     Route::apiResource('secteurs', SecteurController::class)->except(['index', 'show']);
     Route::apiResource('sous-secteurs', SousSecteurController::class)->except(['index', 'show']);
     Route::apiResource('activites', ActiviteController::class)->except(['index', 'show']);
 
+    // Avis
+    Route::post('/produits/avis', [AvisController::class, 'store']);
+    Route::post('/avis-producteurs', [AvisProducteurController::class, 'store']);
+    Route::get('/produits/{id}/avis', [AvisController::class, 'avisParProduit']);
+    Route::get('/producteurs/{id}/avis', [AvisProducteurController::class, 'avisParProducteur']);
 
-    // produit
+    // Produits par producteur et autres filtres
+    Route::get('/produits/producteur/{producteur_id}', [ProduitController::class, 'produitsParProducteur']);
     Route::get('/produits/search', [ProduitController::class, 'search']);
     Route::get('/produits/sous-secteur/{sousSecteur}', [ProduitController::class, 'produitsParSousSecteur']);
     Route::get('/produits/activite/{activite}', [ProduitController::class, 'produitsParActivite']);
@@ -67,19 +58,14 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::apiResource('produits', ProduitController::class);
 
     // Commandes
-    Route::apiResource('commandes', CommandeController::class);
-    Route::get('/commandes/user/{user}', [CommandeController::class, 'getCommandesByUser']);
-
-    // Historique Commandes avec filtres
-    Route::get('/commandes/user/{user}/historique/{filter?}', [CommandeController::class, 'historique'])
-    ->where('filter', 'retirer|recus')  ;
-    // Tableau de bord - Commandes en cours
+    Route::get('/mes-commandes', [CommandeController::class, 'getMesCommandes']);
+    Route::get('/mes-commandes/historique/{filter?}', [CommandeController::class, 'historiqueMesCommandes'])->where('filter', 'retirer|recus');
     Route::get('/commandes/encours', [CommandeController::class, 'commandesEnCours']);
-    // Tableau de bord - Livraisons du jour
     Route::get('/commandes/livraisons-aujourdhui', [CommandeController::class, 'livraisonsAujourdhui']);
-
+    Route::put('/commandes/{commande}/produits/{produit}/statut', [CommandeController::class, 'updateStatutProduit']);
+    Route::get('/mes-commandes/producteur', [CommandeController::class, 'commandesParProducteur']);
+    Route::apiResource('commandes', CommandeController::class);
 
     // Statistiques
     Route::get('/stats/secteurs', [SecteurController::class, 'stats']);
-
 });

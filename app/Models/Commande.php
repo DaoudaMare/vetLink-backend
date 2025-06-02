@@ -12,8 +12,13 @@ class Commande extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'date_commande', 'statut'
+        'user_id', 'date_commande','statut'
     ];
+
+    protected $casts = [
+        'date_commande' => 'datetime',
+    ];
+
 
     /**
      * Une commande appartient à un utilisateur.
@@ -30,8 +35,8 @@ class Commande extends Model
      */
     public function produits()
     {
-        return $this->belongsToMany(Produit::class, 'commande_produit')
-                    ->withPivot('quantite') // On garde la quantité de chaque produit commandé
+        return $this->belongsToMany(Produit::class, 'commande_produits')
+                    ->withPivot('quantite', 'statut') // On garde la quantité de chaque produit commandé
                     ->withTimestamps(); // On garde les dates de création/modification
     }
 
@@ -48,7 +53,7 @@ class Commande extends Model
      {
          return $query->when($filter, function ($q) use ($filter) {
              $statut = match($filter) {
-                 'retirer' => 'annulée',  // Cohérent avec votre interface
+                 'retirer' => 'annulée',  // Cohérent avec l' interface
                  'recus'   => 'livrée',
                  default   => null
              };

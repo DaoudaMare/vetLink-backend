@@ -22,6 +22,11 @@ class ProduitController extends Controller
         $query = Produit::query()
             ->with(['secteur', 'sousSecteur', 'activite', 'producteur']);
 
+            // Filtrage par producteur
+       if ($request->has('producteur_id')) {
+        $query->where('producteur_id', $request->producteur_id);
+        }
+
         // Filtrage par secteur
         if ($request->has('secteur_id')) {
             $query->where('secteur_id', $request->secteur_id);
@@ -266,16 +271,26 @@ public function triParPrixDesc(): JsonResponse
      * Produits les plus recents
      */
 
-public function produitsRecents()
+/**
+ * Produits les plus récents
+ */
+public function produitsRecents(): JsonResponse
 {
-    $produits = Produit::orderBy('created_at', 'desc')->get();
+    $produits = Produit::with(['secteur', 'sousSecteur'])
+        ->orderByDesc('created_at')
+        ->take(10)
+        ->get();
 
-    return response()->json($produits);
+    return response()->json([
+        'message' => 'Top 10 des produits les plus récents',
+        'produits' => $produits
+    ]);
 }
+
 
 public function search(Request $request)
 {
-    $query = Produit::query();
+    $query = Produit::with(['secteur', 'sousSecteur', 'activite']);
 
     if ($request->filled('nom')) {
         $query->where('nom_produit', 'like', '%' . $request->nom . '%');
@@ -285,8 +300,26 @@ public function search(Request $request)
         $query->where('secteur_id', $request->secteur_id);
     }
 
+    if ($request->filled('nom_secteur')) {
+        $query->whereHas('secteur', function ($q) use ($request) {
+            $q->where('nom', 'like', '%' . $request->nom_secteur . '%');
+        });
+    }
+
     if ($request->filled('sous_secteur_id')) {
         $query->where('sous_secteur_id', $request->sous_secteur_id);
+    }
+
+    if ($request->filled('nom_sous_secteur')) {
+        $query->whereHas('sousSecteur', function ($q) use ($request) {
+            $q->where('nom', 'like', '%' . $request->nom_sous_secteur . '%');
+        });
+    }
+
+    if ($request->filled('nom_activite')) {
+        $query->whereHas('activite', function ($q) use ($request) {
+            $q->where('nom', 'like', '%' . $request->nom_activite . '%');
+        });
     }
 
     if ($request->filled('min_prix')) {
@@ -301,6 +334,19 @@ public function search(Request $request)
 
     return response()->json([
         'message' => 'Résultats de la recherche',
+        'produits' => $produits
+    ]);
+}
+
+
+public function produitsParProducteur($producteur_id): JsonResponse
+{
+    $produits = Produit::with(['secteur', 'sousSecteur', 'activite'])
+        ->where('producteur_id', $producteur_id)
+        ->get();
+
+    return response()->json([
+        'message' => 'Produits du producteur',
         'produits' => $produits
     ]);
 }

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('commande_id')->constrained('commandes')->onDelete('cascade');
             $table->foreignId('produit_id')->constrained('produits')->onDelete('cascade');
             $table->integer('quantite');
+            $table->enum('statut', ['en attente', 'en cours', 'livrée', 'annulée','expediée'])->default('en attente');
             $table->timestamps();
         });
          // Table pivot commande_produit (relation plusieurs-à-plusieurs)

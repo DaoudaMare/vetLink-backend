@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->dateTime('date_commande');
-            $table->enum('statut', ['en attente', 'en cours', 'livrée', 'annulée'])->default('en attente');
+            $table->enum('statut', ['en attente', 'en cours', 'livrée', 'annulée','validée'])->default('en attente');
             $table->timestamps();
         });
     }

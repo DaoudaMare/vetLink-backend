@@ -17,7 +17,7 @@ return new class extends Migration
             $table->uuid('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->enum('type_entite', ['particulier', 'association', 'entreprise', 'startup']);
-            $table->decimal('notation', 2, 1)->default(0);
+            $table->decimal('notation', 3, 1)->default(0);
             $table->enum('secteur_activite', array_column(TypeSecteurActiviteEnum::cases(), 'value'))->nullable();
             $table->string('type_production');
             $table->string('mode_paiement');

@@ -22,7 +22,6 @@ class UpdateCommandeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'statut' => 'required|string|in:en cours,validée,livrées,annulée, non traitées',
             'produits' => 'sometimes|array',
             'produits.*.id' => 'required_with:produits|exists:produits,id',
             'produits.*.quantite' => 'required_with:produits|integer|min:1'
