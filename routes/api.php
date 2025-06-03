@@ -46,6 +46,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::get('/producteurs/{id}/avis', [AvisProducteurController::class, 'avisParProducteur']);
 
     // Produits par producteur et autres filtres
+    Route::get('/producteurs/mes-statistiques-ventes', [ProduitController::class, 'mesStatistiquesVentes']);
     Route::get('/produits/producteur/{producteur_id}', [ProduitController::class, 'produitsParProducteur']);
     Route::get('/produits/search', [ProduitController::class, 'search']);
     Route::get('/produits/sous-secteur/{sousSecteur}', [ProduitController::class, 'produitsParSousSecteur']);
@@ -58,6 +59,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::apiResource('produits', ProduitController::class);
 
     // Commandes
+    Route::get('/producteurs/mes-statistiques-commandes', [CommandeController::class, 'mesStatistiquesCommandes']);
     Route::get('/mes-commandes', [CommandeController::class, 'getMesCommandes']);
     Route::get('/mes-commandes/historique/{filter?}', [CommandeController::class, 'historiqueMesCommandes'])->where('filter', 'retirer|recus');
     Route::get('/commandes/encours', [CommandeController::class, 'commandesEnCours']);

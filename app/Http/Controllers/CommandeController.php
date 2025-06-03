@@ -280,5 +280,25 @@ public function updateStatutProduit(Request $request, Commande $commande, Produi
     return response()->json(['message' => 'Statut mis à jour avec succès.']);
 }
 
+public function mesStatistiquesCommandes(): JsonResponse
+{
+    $producteur = auth()->user();
+
+    $commandes = Commande::whereHas('produits', function ($q) use ($producteur) {
+        $q->where('producteur_id', $producteur->id);
+    })
+    ->with('produits')
+    ->get();
+
+    $statutCount = $commandes->groupBy('statut')->map->count();
+
+    return response()->json([
+        'message' => 'Statistiques des commandes du producteur connecté',
+        'total_commandes' => $commandes->count(),
+        'par_statut' => $statutCount,
+    ]);
+}
+
+
 
 }

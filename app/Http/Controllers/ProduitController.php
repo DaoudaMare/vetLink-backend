@@ -352,4 +352,35 @@ public function produitsParProducteur($producteur_id): JsonResponse
 }
 
 
+public function mesStatistiquesVentes()
+{
+    $producteur = auth()->user(); // récupère automatiquement le producteur connecté
+
+    $produits = Produit::where('producteur_id', $producteur->id)
+        ->with(['commandes' => function ($q) {
+            $q->withPivot('quantite')
+              ->whereIn('commande_produits.statut', ['livrée']);
+        }])
+        ->get();
+
+    $statistiques = [];
+
+    foreach ($produits as $produit) {
+        $totalQuantite = $produit->commandes->sum('pivot.quantite');
+        $revenu = $totalQuantite * $produit->prix;
+
+        $statistiques[] = [
+            'produit' => $produit->nom_produit,
+            'quantite_vendue' => $totalQuantite,
+            'revenu_genere' => $revenu,
+        ];
+    }
+
+    return response()->json([
+        'message' => 'Statistiques des ventes du producteur connecté',
+        'statistiques' => $statistiques
+    ]);
+}
+
+
 }
