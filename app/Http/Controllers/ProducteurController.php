@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProducteurRequest;
+use App\Http\Requests\UpdateProducteurRequest;
 use App\Models\Producteur;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -28,7 +29,8 @@ class ProducteurController extends Controller
             TypeUserEnum::Particulier->value,
             TypeUserEnum::Association->value,
             TypeUserEnum::Entreprise->value,
-            TypeUserEnum::Startup->value
+            TypeUserEnum::Startup->value,
+            TypeUserEnum::Groupement->value
         ];
 
         // Refuser si le type d'utilisateur n'est pas autorisé
@@ -65,4 +67,38 @@ class ProducteurController extends Controller
             ], 500);
         }
     }
+
+
+
+public function update(UpdateProducteurRequest $request): JsonResponse
+{
+    $user = Auth::user();
+
+    $producteur = Producteur::where('user_id', $user->id)->first();
+
+    if (!$producteur) {
+        return response()->json([
+            'message' => 'Profil producteur introuvable.'
+        ], 404);
+    }
+
+    $validatedData = $request->validated();
+
+    try {
+        $producteur->update($validatedData);
+
+        return response()->json([
+            'message' => 'Profil producteur mis à jour avec succès.',
+            'data' => $producteur->fresh()
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Erreur lors de la mise à jour du profil producteur : ' . $e->getMessage());
+
+        return response()->json([
+            'error' => 'Erreur interne lors de la mise à jour.',
+            'details' => config('app.debug') ? $e->getMessage() : null
+        ], 500);
+    }
+}
+
 }

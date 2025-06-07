@@ -5,18 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Particulier extends Model
+class Groupement extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
-        'methodes_production',
-        'certifications_labels'
+        'nombre_membres',
+        'activites_principales',
+        'produits_commercialises',
     ];
-
-    protected $casts = [
-    'certifications_labels' => 'array',
-];
-
 }

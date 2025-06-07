@@ -8,4 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Association extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'numero_enregistrement',
+        'nombre_membres',
+        'activites_principales',
+        'produits_commercialises',
+    ];
 }

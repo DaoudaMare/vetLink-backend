@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\ProfileProgress;
 use App\Repositories\ProfileProgressRepository;
+use Illuminate\Support\Facades\Auth;
 
 class ProfileProggressController extends Controller
 {
@@ -15,7 +16,7 @@ class ProfileProggressController extends Controller
     public function __construct(ProfileProgressRepository $profileProgressRepository)
     {
         $this->profileProgressRepository = $profileProgressRepository;
-        
+
     }
 
     /**
@@ -71,7 +72,7 @@ class ProfileProggressController extends Controller
     {
         $user = $this->profileProgressRepository->showUserProfile($id);
         dd($user);
-        
+
         if (!$user) {
             return response()->json([
                 'message' => 'Utilisateur non trouvé'
@@ -94,4 +95,24 @@ class ProfileProggressController extends Controller
     {
         //
     }
+
+
+
+public function mon_profile_progresse()
+{
+    $user = Auth::user();
+
+    $profileProgress = ProfileProgress::where('user_id', $user->id)
+        ->with('user')
+        ->first();
+
+    if (!$profileProgress) {
+        return response()->json([
+            'message' => 'Progression du profil non trouvée'
+        ], 404);
+    }
+
+    return response()->json($profileProgress, 200);
+}
+
 }

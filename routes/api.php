@@ -1,7 +1,13 @@
 <?php
 use App\Http\Controllers\ActiviteController;
+use App\Http\Controllers\Api\AssociationController;
 use App\Http\Controllers\Api\AuthentificationController;
+use App\Http\Controllers\Api\DocumentController;
+use App\Http\Controllers\Api\EntrepriseController;
+use App\Http\Controllers\Api\GroupementController;
+use App\Http\Controllers\Api\ParticulierController;
 use App\Http\Controllers\Api\ProfileProggressController;
+use App\Http\Controllers\Api\StartupController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\AvisController;
 use App\Http\Controllers\AvisProducteurController;
@@ -11,6 +17,7 @@ use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\SecteurController;
 use App\Http\Controllers\SousSecteurController;
 use App\Models\Producteur;
+use App\Models\ProfileProgress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +40,9 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::apiResource('profile_progress', ProfileProggressController::class);
     Route::post('/logout', [AuthentificationController::class, 'logout']);
     Route::apiResource('producers', ProducteurController::class);
+    Route::put('/profile/producteurs/update', [ProducteurController::class, 'update']);
+    //Affichage de la progression du profile du producteur connecté
+    Route::get('/progression-mon-profile/profile-progress', [ProfileProggressController::class, 'mon_profile_progresse']);
 
     // Gestion de la classification sectorielle complète
     Route::apiResource('secteurs', SecteurController::class)->except(['index', 'show']);
@@ -67,6 +77,16 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::put('/commandes/{commande}/produits/{produit}/statut', [CommandeController::class, 'updateStatutProduit']);
     Route::get('/mes-commandes/producteur', [CommandeController::class, 'commandesParProducteur']);
     Route::apiResource('commandes', CommandeController::class);
+
+    Route::prefix('completer-profile')->group(function () {
+    Route::post('/particuliers', [ParticulierController::class, 'store']);
+    Route::post('/associations', [AssociationController::class, 'store']);
+    Route::post('/entreprises', [EntrepriseController::class, 'store']);
+    Route::post('/groupements', [GroupementController::class, 'store']);
+    Route::post('/startups', [StartupController::class, 'store']);
+    Route::post('/document', [DocumentController::class, 'store']);
+});
+
 
     // Statistiques
     Route::get('/stats/secteurs', [SecteurController::class, 'stats']);

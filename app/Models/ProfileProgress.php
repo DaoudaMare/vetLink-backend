@@ -32,67 +32,55 @@ class ProfileProgress extends Model
     }
 
     public static function updateProgress(User $user)
-    {
-        $progress = 10; // Départ à 10%
-        // Vérification en fonction du type d'utilisateur
-        switch ($user->type_user) {
-            case 'particulier':
-                $profile = Particulier::where('user_id', $user->id)->first();
-                if ($profile) {
-                    if ($profile->methodes_production) $progress += 30;
-                    if (!empty($profile->certifications_labels)) $progress += 20;
-                }
-                break;
+{
+    $progress = 20;
 
-            case 'association':
-                $profile = Association::where('user_id', $user->id)->first();
-                if ($profile) {
-                    if ($profile->numero_enregistrement) $progress += 20;
-                    if ($profile->nombre_membres > 0) $progress += 10;
-                    if ($profile->activites_principales) $progress += 10;
-                    if ($profile->produits_commercialises) $progress += 10;
-                }
-                break;
+    if ($profile = Particulier::where('user_id', $user->id)->first()) {
+        if (!empty($profile->methodes_production)) $progress += 30;
 
-            case 'entreprise':
-                $profile = Entreprise::where('user_id', $user->id)->first();
-                if ($profile) {
-                    if ($profile->numero_identification_fiscale) $progress += 30;
-                    if ($profile->produits_services) $progress += 20;
-                    if (!empty($profile->certifications_normes)) $progress += 10;
-                }
-                break;
+        $certifs = is_string($profile->certifications_labels)
+            ? json_decode($profile->certifications_labels, true)
+            : $profile->certifications_labels;
 
-            case 'groupement':
-                $profile = Groupements::where('user_id', $user->id)->first();
-                if ($profile) {
-                    if ($profile->nombre_membres > 0) $progress += 20;
-                    if ($profile->activites_principales) $progress += 15;
-                    if ($profile->produits_commercialises) $progress += 15;
-                }
-                break;
+        if (is_array($certifs) && count($certifs) > 0) $progress += 20;
+    } elseif ($profile = Association::where('user_id', $user->id)->first()) {
+        if ($profile->numero_enregistrement) $progress += 20;
+        if ($profile->nombre_membres > 0) $progress += 10;
+        if ($profile->activites_principales) $progress += 10;
+        if ($profile->produits_commercialises) $progress += 10;
+    } elseif ($profile = Entreprise::where('user_id', $user->id)->first()) {
+        if ($profile->numero_identification_fiscale) $progress += 30;
+        if ($profile->produits_services) $progress += 20;
 
-            case 'startup':
-                $profile = Startup::where('user_id', $user->id)->first();
-                if ($profile) {
-                    if ($profile->type_innovation) $progress += 30;
-                    if (!empty($profile->investisseurs_partenaires)) $progress += 20;
-                }
-                break;
-        }
+        $certifs = is_string($profile->certifications_normes)
+            ? json_decode($profile->certifications_normes, true)
+            : $profile->certifications_normes;
 
-        // Vérifier les documents validés
-        $documents_valides = Document::where('user_id', $user->id)->where('status', 'approved')->count();
-        if ($documents_valides > 0) {
-            $progress += min(20, $documents_valides * 5); // Max 20% pour les documents
-        }
+        if (is_array($certifs) && count($certifs) > 0) $progress += 10;
+    } elseif ($profile = Groupement::where('user_id', $user->id)->first()) {
+        if ($profile->nombre_membres > 0) $progress += 20;
+        if ($profile->activites_principales) $progress += 15;
+        if ($profile->produits_commercialises) $progress += 15;
+    } elseif ($profile = Startup::where('user_id', $user->id)->first()) {
+        if ($profile->type_innovation) $progress += 30;
 
-        // Mise à jour de la progression
-        ProfileProgress::updateOrCreate(
-            ['user_id' => $user->id],
-            ['completion_percentage' => min(100, $progress)] // Ne pas dépasser 100%
-        );
+        $invest = is_string($profile->investisseurs_partenaires)
+            ? json_decode($profile->investisseurs_partenaires, true)
+            : $profile->investisseurs_partenaires;
+
+        if (is_array($invest) && count($invest) > 0) $progress += 20;
     }
+
+    // Documents validés
+    $docs = Document::where('user_id', $user->id)->where('status', 'approved')->count();
+    if ($docs > 0) $progress += min(20, $docs * 5);
+
+    ProfileProgress::updateOrCreate(
+        ['user_id' => $user->id],
+        ['completion_percentage' => min(100, $progress)]
+    );
+}
+
 
 
 }

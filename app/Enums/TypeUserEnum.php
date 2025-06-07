@@ -8,6 +8,7 @@ enum TypeUserEnum:string
   case Association = 'association';
   case Entreprise = 'entreprise';
   case Startup = 'startup';
+  case Groupement = 'groupement';
   case Admin = 'admin';
   case Moderateur = 'moderateur';
    case Consommateur = 'consommateur';
@@ -18,6 +19,7 @@ enum TypeUserEnum:string
      self::Association  => 'association',
      self::Entreprise  => 'entreprise',
      self::Startup  => 'startup',
+     self::Groupement    => 'groupement',
      self::Admin  => 'admin',
      self::Moderateur  => 'moderateur',
      self::Consommateur => 'consommateur',

@@ -80,6 +80,10 @@ class UserRepository implements UserInterface
      */
     public function update(User $user, array $data)
     {
+         // Si mot de passe fourni, on le hash
+    if (isset($data['password'])) {
+        $data['password'] = Hash::make($data['password']);
+    }
         $user->update($data);
         return $user;
     }
@@ -91,4 +95,5 @@ class UserRepository implements UserInterface
     {
         return $user->delete();
     }
+
 }

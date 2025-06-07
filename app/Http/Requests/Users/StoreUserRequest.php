@@ -21,7 +21,7 @@ class StoreUserRequest extends FormRequest
     {
         return [
             'nom_raison_sociale' => 'required|string|max:255',
-            'type_user' => 'required|in:particulier,association,entreprise,startup,admin,moderateur,consommateur',
+            'type_user' => 'required|in:particulier,association,entreprise,startup,admin,moderateur,consommateur,groupement',
             'email' => 'required|email|unique:users,email',
             'telephone' => 'required|string|unique:users,telephone',
             'pays' => 'required|string|max:255',
