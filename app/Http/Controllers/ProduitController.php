@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProduitRequest;
 use App\Http\Requests\UpdateProduitRequest;
 use App\Models\Produit;
-use App\Models\Secteur;
-use App\Models\SousSecteur;
-use App\Models\Activite;
+// use App\Models\Secteur;
+// use App\Models\SousSecteur;
+// use App\Models\Activite;
+use App\Models\Categorie;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -19,39 +20,12 @@ class ProduitController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Produit::query()
-            ->with(['secteur', 'sousSecteur', 'activite', 'producteur']);
-
-        // Filtrage par secteur
-        if ($request->has('secteur_id')) {
-            $query->where('secteur_id', $request->secteur_id);
-        }
-
-        // Filtrage par sous-secteur
-        if ($request->has('sous_secteur_id')) {
-            $query->where('sous_secteur_id', $request->sous_secteur_id);
-        }
-
-        // Filtrage par activité
-        if ($request->has('activite_id')) {
-            $query->where('activite_id', $request->activite_id);
-        }
-
-        // Filtrage par type (code_type)
-        if ($request->has('code_type')) {
-            $query->where('code_type', $request->code_type);
-        }
-
-        // Filtrage bio
-        if ($request->has('est_bio')) {
-            $query->where('est_bio', $request->boolean('est_bio'));
-        }
-
-        $produits = $query->get();
+        $query = Produit::All();
+           
 
         return response()->json([
             'message' => 'Liste des produits récupérée avec succès',
-            'produits' => $produits
+            'produits' => $query
         ], 200);
     }
 
@@ -82,7 +56,7 @@ class ProduitController extends Controller
 
         return response()->json([
             'message' => 'Produit créé avec succès.',
-            'produit' => $produit->load(['secteur', 'sousSecteur', 'activite'])
+            'produit' => $produit->load(['categorie'])
         ], 201);
     }
 
@@ -95,7 +69,7 @@ class ProduitController extends Controller
 
         return response()->json([
             'message' => 'Produit récupéré avec succès',
-            'produit' => $produit->load(['secteur', 'sousSecteur', 'activite', 'producteur'])
+            'produit' => $produit->load(['categorie', 'producteur'])
         ], 200);
     }
 
@@ -137,7 +111,7 @@ class ProduitController extends Controller
 
         return response()->json([
             'message' => 'Produit mis à jour avec succès.',
-            'produit' => $produit->refresh()->load(['secteur', 'sousSecteur', 'activite'])
+            'produit' => $produit->refresh()->load(['categorie'])
         ], 200);
     }
 
@@ -171,7 +145,7 @@ class ProduitController extends Controller
      */
     public function topVendus(): JsonResponse
     {
-        $produits = Produit::with(['secteur', 'sousSecteur'])
+        $produits = Produit::with(['categorie', 'producteur'])
             ->orderBy('ventes', 'desc')
             ->take(10)
             ->get();
@@ -187,7 +161,7 @@ class ProduitController extends Controller
      */
     public function topApprecies(): JsonResponse
     {
-        $produits = Produit::with(['secteur', 'sousSecteur'])
+        $produits = Produit::with(['categorie', 'producteur'])
             ->orderByDesc('note')
             ->take(10)
             ->get();
@@ -199,46 +173,16 @@ class ProduitController extends Controller
     }
 
     /**
-     * Produits par secteur
+     * Produits par catégorie
      */
-    public function produitsParSecteur($secteur_id): JsonResponse
+    public function produitsParCategorie($categorie_id): JsonResponse
     {
-        $produits = Produit::with(['sousSecteur', 'activite'])
-            ->where('secteur_id', $secteur_id)
+        $produits = Produit::with(['producteur'])
+            ->where('categorie_id', $categorie_id)
             ->get();
 
         return response()->json([
-            'message' => 'Produits par secteur',
-            'produits' => $produits
-        ]);
-    }
-
-    /**
-     * Produits par sous-secteur
-     */
-    public function produitsParSousSecteur($sous_secteur_id): JsonResponse
-    {
-        $produits = Produit::with(['secteur', 'activite'])
-            ->where('sous_secteur_id', $sous_secteur_id)
-            ->get();
-
-        return response()->json([
-            'message' => 'Produits par sous-secteur',
-            'produits' => $produits
-        ]);
-    }
-
-    /**
-     * Produits par activité
-     */
-    public function produitsParActivite($activite_id): JsonResponse
-    {
-        $produits = Produit::with(['secteur', 'sousSecteur'])
-            ->where('activite_id', $activite_id)
-            ->get();
-
-        return response()->json([
-            'message' => 'Produits par activité',
+            'message' => 'Produits par catégorie',
             'produits' => $produits
         ]);
     }
@@ -248,12 +192,12 @@ class ProduitController extends Controller
      */
     public function produitsBio(): JsonResponse
     {
-        $produits = Produit::with(['secteur', 'sousSecteur'])
+        $produits = Produit::with(['categorie', 'producteur'])
             ->where('est_bio', true)
             ->get();
 
         return response()->json([
-            'message' => 'Liste des produits bio',
+            'message' => 'Produits bio',
             'produits' => $produits
         ]);
     }

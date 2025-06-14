@@ -5,35 +5,46 @@ namespace App\Models;
 use App\Models\User;
 use App\Models\Produit;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Commande extends Model
 {
     use HasFactory;
+    
 
     protected $fillable = [
-        'user_id', 'date_commande', 'statut'
+        'num',
+        'customer_id',
+        'product_id',
+        'Quantity',
+        'total_price',
+        'status',
+        'delivery_status',
+        'payment',
     ];
 
     /**
-     * Une commande appartient à un utilisateur.
-     * Relation One-to-Many (1-N) inverse
+     * Le client qui a passé la commande.
      */
-    public function user()
+    public function customer(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'customer_id');
     }
 
     /**
-     * Une commande peut contenir plusieurs produits.
-     * Relation Many-to-Many (N-N) avec une table pivot 'commande_produit'
+     * Le produit commandé.
      */
-    public function produits()
+    public function produit(): BelongsTo
     {
-        return $this->belongsToMany(Produit::class, 'commande_produit')
-                    ->withPivot('quantite') // On garde la quantité de chaque produit commandé
-                    ->withTimestamps(); // On garde les dates de création/modification
+        return $this->belongsTo(Produit::class, 'product_id');
     }
 
+    // public function produits()
+    // {
+    //     return $this->belongsToMany(Produit::class, 'commande_produit')
+    //                 ->withPivot('quantity')
+    //                 ->withTimestamps();
+    // }
 
 }

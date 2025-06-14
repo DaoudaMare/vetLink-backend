@@ -2,150 +2,55 @@
 
 namespace App\Models;
 
-
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Produit extends Model
 {
-    use HasFactory, SoftDeletes;
-
+    // Définir les colonnes modifiables
     protected $fillable = [
-        'nom_produit',
-        'description',
-        'prix',
-        'quantite_disponible',
-        'ventes',
-        'note',
-        'producteur_id',
-        'secteur_id',
-        'sous_secteur_id',
-        'activite_id',
-        'code_type',
-        'unite_mesure',
-        'image_principale',
-        'images_secondaires',
-        'est_bio',
-        'certifications'
-    ];
-
-    protected $casts = [
-        'images_secondaires' => 'array',
-        'certifications' => 'array',
-        'est_bio' => 'boolean',
-        'prix' => 'decimal:2',
-        'note' => 'decimal:1'
-    ];
-
-    protected $appends = [
-        'image_principale_url',
-        'images_secondaires_urls'
+        'name',
+        'categorie_id',
+        'producer_id',
+        'quantity',
+        'price',
+        'measure',
     ];
 
     /**
-     * Générer l'URL complète de l'image principale
+     * Le produit appartient à une catégorie.
      */
-    public function getImagePrincipaleUrlAttribute()
+    public function categorie(): BelongsTo
     {
-        return $this->image_principale ? asset('storage/' . $this->image_principale) : null;
+        return $this->belongsTo(Categorie::class);
     }
 
     /**
-     * Générer les URLs complètes des images secondaires
+     * Le produit appartient à un producteur.
      */
-    public function getImagesSecondairesUrlsAttribute()
+    public function producer(): BelongsTo
     {
-        if (!$this->images_secondaires) {
-            return null;
-        }
-
-        return array_map(function($image) {
-            return asset('storage/' . $image);
-        }, $this->images_secondaires);
+        return $this->belongsTo(User::class);
     }
 
     /**
-     * Relation avec le producteur
+     * Le produit peut avoir plusieurs images.
      */
-    public function producteur()
+    public function images(): HasMany
     {
-        return $this->belongsTo(Producteur::class);
+        return $this->hasMany(ProductImage::class);
     }
 
-    /**
-     * Relation avec le secteur
-     */
-    public function secteur()
-    {
-        return $this->belongsTo(Secteur::class);
-    }
-
-    /**
-     * Relation avec le sous-secteur
-     */
-    public function sousSecteur()
-    {
-        return $this->belongsTo(SousSecteur::class);
-    }
-
-    /**
-     * Relation avec l'activité
-     */
-    public function activite()
-    {
-        return $this->belongsTo(Activite::class);
-    }
-
-    /**
-     * Relation avec les commandes
-     */
     public function commandes()
     {
         return $this->belongsToMany(Commande::class, 'commande_produit')
-                    ->withPivot('quantite', 'prix_unitaire')
+                    ->withPivot('quantity')
                     ->withTimestamps();
     }
-
-    /**
-     * Scope pour les produits bio
-     */
-    public function scopeBio($query)
+    
+    public function getNombreCommandesAttribute()
     {
-        return $query->where('est_bio', true);
-    }
-
-    /**
-     * Scope pour les produits d'un secteur spécifique
-     */
-    public function scopeParSecteur($query, $secteurId)
-    {
-        return $query->where('secteur_id', $secteurId);
-    }
-
-    /**
-     * Scope pour les produits d'un sous-secteur spécifique
-     */
-    public function scopeParSousSecteur($query, $sousSecteurId)
-    {
-        return $query->where('sous_secteur_id', $sousSecteurId);
-    }
-
-    /**
-     * Scope pour les produits d'une activité spécifique
-     */
-    public function scopeParActivite($query, $activiteId)
-    {
-        return $query->where('activite_id', $activiteId);
-    }
-
-    /**
-     * Mettre à jour le stock après une commande
-     */
-    public function mettreAJourStock($quantiteVendue)
-    {
-        $this->quantite_disponible -= $quantiteVendue;
-        $this->ventes += $quantiteVendue;
-        $this->save();
+        return $this->commandes()->sum('commande_produit.quantity');
     }
 }
