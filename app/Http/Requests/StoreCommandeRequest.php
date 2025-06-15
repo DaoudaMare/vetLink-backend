@@ -22,10 +22,24 @@ class StoreCommandeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|exists:users,id',
-            'produits' => 'required|array',
-            'produits.*.id' => 'required|exists:produits,id',
-            'produits.*.quantite' => 'required|integer|min:1'
+            'customer_id' => 'required|exists:users,id',
+            'product_id' => 'required|exists:produits,id',
+            'Quantity' => 'required|integer|min:1',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'customer_id.required' => 'L\'identifiant du client est obligatoire.',
+            'customer_id.exists' => 'Le client sélectionné n\'existe pas.',
+            
+            'product_id.required' => 'L\'identifiant du produit est obligatoire.',
+            'product_id.exists' => 'Le produit sélectionné n\'existe pas.',
+            
+            'Quantity.required' => 'La quantité est obligatoire.',
+            'Quantity.integer' => 'La quantité doit être un nombre entier.',
+            'Quantity.min' => 'La quantité doit être supérieure à 0.',
         ];
     }
 }

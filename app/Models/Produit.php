@@ -11,11 +11,13 @@ class Produit extends Model
     // Définir les colonnes modifiables
     protected $fillable = [
         'name',
+        'description',
         'categorie_id',
         'producer_id',
         'quantity',
         'price',
         'measure',
+        'isbio', 
     ];
 
     /**
@@ -34,12 +36,17 @@ class Produit extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function organisationProducer(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class);
+    }
+
     /**
      * Le produit peut avoir plusieurs images.
      */
     public function images(): HasMany
     {
-        return $this->hasMany(ProductImage::class);
+        return $this->hasMany(ProductImage::class, 'product_id');
     }
 
     public function commandes()

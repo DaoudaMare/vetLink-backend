@@ -47,6 +47,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Vérifie si l'utilisateur est un administrateur.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->userType && $this->userType->title === 'Admin';
+    }
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>

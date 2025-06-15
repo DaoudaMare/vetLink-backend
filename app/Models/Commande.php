@@ -47,4 +47,14 @@ class Commande extends Model
     //                 ->withTimestamps();
     // }
 
+    public function payment()
+    {
+        return $this->hasOne(payments::class);
+    }
+
+    public function isPaid(): bool
+    {
+        return optional($this->payment)->status->label === 'paid';
+    }
+
 }

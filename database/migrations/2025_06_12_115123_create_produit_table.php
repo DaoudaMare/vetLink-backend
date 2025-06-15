@@ -17,8 +17,10 @@ return new class extends Migration
         Schema::create('produits', function (Blueprint $table) {
             $table->id();
             $table->text('name');
+            $table->string('description')->nullable();
             $table->foreignIdFor(Categorie::class)->constrained()->cascadeOnDelete();
-            $table->foreignId('producer_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('producer_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('organisation_id')->nullable()->constrained('organisations')->onDelete('cascade');
             $table->double('quantity');
             $table->integer('price');
             $table->enum('measure', ['kg', 'g', 'L', 'unité'])->nullable();
