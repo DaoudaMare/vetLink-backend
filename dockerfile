@@ -2,7 +2,7 @@ FROM php:8.2-apache
 
 WORKDIR /var/www/html
 
-# 1. Installer les dépendances système avec libsqlite3-dev
+# 1. Installer les dépendances système
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     git \
@@ -13,20 +13,23 @@ RUN apt-get update && \
     libonig-dev \
     libxml2-dev \
     sqlite3 \
-    libsqlite3-dev \  
+    libsqlite3-dev \
+    libicu-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Installer les extensions PHP en étapes séparées
+# 2. Installer les extensions PHP
 RUN docker-php-ext-install pdo_mysql && \
     docker-php-ext-install pdo_sqlite && \
     docker-php-ext-install mbstring && \
     docker-php-ext-install exif && \
     docker-php-ext-install pcntl && \
     docker-php-ext-install bcmath && \
-    docker-php-ext-install zip
+    docker-php-ext-install zip && \
+    docker-php-ext-install intl && \
+    docker-php-ext-install sodium
 
-# 3. Configurer et installer GD séparément
+# 3. Configurer et installer GD
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     libfreetype6-dev \
