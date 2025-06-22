@@ -25,7 +25,7 @@ class UserController extends Controller
         return response()->json([
             'message' => 'Listes des utilisateur recupéré avec succès', 
             'user' => $user
-        ], 201);
+        ], 200);
     }
 
     /**

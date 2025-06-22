@@ -15,10 +15,12 @@ RUN apt-get update && \
     sqlite3 \
     libsqlite3-dev \
     libicu-dev \
+    libsodium-dev \
+    pkg-config \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Installer les extensions PHP
+# 2. Installer les extensions PHP de base
 RUN docker-php-ext-install pdo_mysql && \
     docker-php-ext-install pdo_sqlite && \
     docker-php-ext-install mbstring && \
@@ -26,10 +28,13 @@ RUN docker-php-ext-install pdo_mysql && \
     docker-php-ext-install pcntl && \
     docker-php-ext-install bcmath && \
     docker-php-ext-install zip && \
-    docker-php-ext-install intl && \
-    docker-php-ext-install sodium
+    docker-php-ext-install intl
 
-# 3. Configurer et installer GD
+# 3. Installer sodium séparément
+RUN pecl install libsodium && \
+    docker-php-ext-enable sodium
+
+# 4. Configurer et installer GD
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     libfreetype6-dev \
@@ -40,31 +45,31 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# 4. Installer Composer
+# 5. Installer Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# 5. Créer la structure pour SQLite
+# 6. Créer la structure pour SQLite
 RUN mkdir -p database && \
     touch database/database.sqlite && \
     chown www-data:www-data database database/database.sqlite && \
     chmod 775 database && \
     chmod 664 database/database.sqlite
 
-# 6. Copier les fichiers de dépendances
+# 7. Copier les fichiers de dépendances
 COPY composer.json composer.lock ./
 
-# 7. Installer les dépendances en mode production
+# 8. Installer les dépendances en mode production
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
-# 8. Copier le reste de l'application
+# 9. Copier le reste de l'application
 COPY . .
 
-# 9. Configurer les permissions
+# 10. Configurer les permissions
 RUN chown -R www-data:www-data storage bootstrap/cache database && \
     find storage bootstrap/cache database -type d -exec chmod 775 {} \; && \
     find storage bootstrap/cache database -type f -exec chmod 664 {} \;
 
-# 10. Configuration Apache
+# 11. Configuration Apache
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf && \
     a2enmod rewrite headers ssl && \
     a2dissite 000-default && \
@@ -89,7 +94,7 @@ RUN echo "<VirtualHost *:80>\n\
     </IfModule>\n\
 </VirtualHost>" > /etc/apache2/sites-available/000-default.conf
 
-# 11. Optimisation Laravel
+# 12. Optimisation Laravel
 RUN php artisan config:clear && \
     php artisan config:cache && \
     php artisan route:clear && \
