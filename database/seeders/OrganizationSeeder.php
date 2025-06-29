@@ -31,7 +31,9 @@ class OrganizationSeeder extends Seeder
         ];
 
         foreach ($organizations as $organization) {
-            Organization::create($organization);
+            Organization::firstOrCreate(['email' => $organization['email']], $organization);
         }
+
+        $this->command->info('Organisations créées avec succès!');
     }
 } 

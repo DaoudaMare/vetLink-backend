@@ -22,7 +22,7 @@ class ProduitController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Produit::with(['categorie', 'producer'/*, 'images'*/]);
+        $query = Produit::with(['categorie', 'producer', 'images']);
 
         // Appliquer les filtres si présents
         if ($request->has('categorie_id')) {

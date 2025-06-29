@@ -41,7 +41,6 @@ class UserSeeder extends Seeder
                 'organization_id' => 2,
                 'password' => Hash::make('password123'),
             ],
-
             [
                 'firstName' => 'Mare',
                 'lastName' => 'Daouda',
@@ -55,7 +54,9 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($users as $user) {
-            User::create($user);
+            User::firstOrCreate(['email' => $user['email']], $user);
         }
+
+        $this->command->info('Utilisateurs créés avec succès!');
     }
 } 

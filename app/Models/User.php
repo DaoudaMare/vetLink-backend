@@ -11,10 +11,10 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 
-
-class User extends Authenticatable
-
+class User extends Authenticatable implements FilamentUser
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
@@ -51,6 +51,24 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
+        // Charger la relation userType si elle n'est pas déjà chargée
+        if (!$this->relationLoaded('userType')) {
+            $this->load('userType');
+        }
+        
+        return $this->userType && $this->userType->title === 'Admin';
+    }
+
+    /**
+     * Vérifie si l'utilisateur peut accéder au panel Filament.
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // Charger la relation userType si elle n'est pas déjà chargée
+        if (!$this->relationLoaded('userType')) {
+            $this->load('userType');
+        }
+        
         return $this->userType && $this->userType->title === 'Admin';
     }
 
@@ -73,4 +91,14 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         // Removed old enum casts as they are no longer relevant
     ];
+
+    public function getUserNameAttribute(): string
+    {
+        return trim(($this->firstName ?? '') . ' ' . ($this->lastName ?? '')) ?: ($this->email ?? 'Utilisateur');
+    }
+
+    public function getFilamentName(): string
+    {
+        return $this->getUserNameAttribute();
+    }
 }

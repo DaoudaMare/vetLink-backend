@@ -32,7 +32,7 @@ class AdminSeeder extends Seeder
         );
 
         // Créer l'utilisateur admin
-        User::firstOrCreate(
+        $user = User::firstOrCreate(
             ['email' => 'admin@vetlink.com'],
             [
                 'firstName' => 'Admin',
@@ -44,5 +44,12 @@ class AdminSeeder extends Seeder
                 'organization_id' => $adminOrg->id,
             ]
         );
+
+        // Vérifier le mot de passe
+        if (!Hash::check('password', $user->password)) {
+            // Réinitialiser le mot de passe
+            $user->password = Hash::make('password');
+            $user->save();
+        }
     }
 }

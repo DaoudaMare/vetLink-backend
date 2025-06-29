@@ -16,8 +16,7 @@ class DatabaseSeeder extends Seeder
             StatusSeeder::class,
             OrganizationSeeder::class,
             UserSeeder::class,
-            ProduitSeeder::class,
-            AdminSeeder::class,
+            ProduitLocalImagesSeeder::class,
         ]);
     }
 } 

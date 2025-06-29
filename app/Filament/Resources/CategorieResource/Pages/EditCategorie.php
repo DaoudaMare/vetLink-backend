@@ -16,4 +16,4 @@ class EditCategorie extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
-} 
+}

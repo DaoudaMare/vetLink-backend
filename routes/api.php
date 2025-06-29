@@ -111,7 +111,6 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::get('/customer/{customerId}', [CommandeController::class, 'customerOrders']);
 });
 
-
 // Routes pour les commandes
 Route::prefix('commandes')->group(function () {
    

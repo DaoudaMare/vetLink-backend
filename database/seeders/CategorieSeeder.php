@@ -13,14 +13,24 @@ class CategorieSeeder extends Seeder
             ['name' => 'Légumes'],
             ['name' => 'Fruits'],
             ['name' => 'Céréales'],
-            ['name' => 'Viandes'],
-            ['name' => 'Produits laitiers'],
+            ['name' => 'Viande'],
+            ['name' => 'Poisson'],
+            ['name' => 'Lait'],
+            ['name' => 'Fromage'],
+            ['name' => 'Yaourt'],
+            ['name' => 'Beurre'],
+            ['name' => 'Crème'],
+            ['name' => 'Œufs'],
+            ['name' => 'Pain'],
+            ['name' => 'Miel'],
             ['name' => 'Produits transformés'],
             ['name' => 'Produits bio'],
         ];
 
         foreach ($categories as $categorie) {
-            Categorie::create($categorie);
+            Categorie::firstOrCreate(['name' => $categorie['name']], $categorie);
         }
+
+        $this->command->info('Catégories créées avec succès!');
     }
 } 

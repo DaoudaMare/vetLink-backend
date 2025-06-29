@@ -6,15 +6,12 @@ use Illuminate\Database\Seeder;
 use App\Models\Produit;
 use App\Models\Categorie;
 use App\Models\User;
-use App\Models\ProductImage;
+use App\Models\productImage;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
-class ProduitSeeder extends Seeder
+class ProduitSeederFixed extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         // Récupérer les catégories existantes
@@ -34,7 +31,7 @@ class ProduitSeeder extends Seeder
         $produits = [
             [
                 'name' => 'Lait Bio Frais',
-                'description' => 'Lait de vache bio frais, riche en calcium et protéines. Produit localement dans nos fermes certifiées bio.',
+                'description' => 'Lait de vache bio frais, riche en calcium et protéines.',
                 'categorie_id' => $categories->where('name', 'Lait')->first()?->id ?? $categories->first()->id,
                 'producer_id' => $producers->first()->id,
                 'quantity' => 50,
@@ -48,7 +45,7 @@ class ProduitSeeder extends Seeder
             ],
             [
                 'name' => 'Fromage de Chèvre Artisanal',
-                'description' => 'Fromage de chèvre affiné 3 mois, goût délicat et texture onctueuse. Idéal pour l\'apéritif.',
+                'description' => 'Fromage de chèvre affiné 3 mois, goût délicat et texture onctueuse.',
                 'categorie_id' => $categories->where('name', 'Fromage')->first()?->id ?? $categories->first()->id,
                 'producer_id' => $producers->first()->id,
                 'quantity' => 25,
@@ -62,7 +59,7 @@ class ProduitSeeder extends Seeder
             ],
             [
                 'name' => 'Œufs Bio Fermiers',
-                'description' => 'Œufs frais de poules élevées en plein air, nourries aux céréales bio. Coquilles solides et jaunes dorés.',
+                'description' => 'Œufs frais de poules élevées en plein air, nourries aux céréales bio.',
                 'categorie_id' => $categories->where('name', 'Œufs')->first()?->id ?? $categories->first()->id,
                 'producer_id' => $producers->first()->id,
                 'quantity' => 100,
@@ -76,7 +73,7 @@ class ProduitSeeder extends Seeder
             ],
             [
                 'name' => 'Miel de Fleurs Sauvages',
-                'description' => 'Miel pur récolté par nos abeilles dans les prairies sauvages. Goût floral et texture crémeuse.',
+                'description' => 'Miel pur récolté par nos abeilles dans les prairies sauvages.',
                 'categorie_id' => $categories->where('name', 'Miel')->first()?->id ?? $categories->first()->id,
                 'producer_id' => $producers->first()->id,
                 'quantity' => 30,
@@ -90,7 +87,7 @@ class ProduitSeeder extends Seeder
             ],
             [
                 'name' => 'Pommes Golden Bio',
-                'description' => 'Pommes Golden cultivées sans pesticides, croquantes et sucrées. Récoltées à maturité optimale.',
+                'description' => 'Pommes Golden cultivées sans pesticides, croquantes et sucrées.',
                 'categorie_id' => $categories->where('name', 'Fruits')->first()?->id ?? $categories->first()->id,
                 'producer_id' => $producers->first()->id,
                 'quantity' => 80,
@@ -104,7 +101,7 @@ class ProduitSeeder extends Seeder
             ],
             [
                 'name' => 'Carottes Bio Fraîches',
-                'description' => 'Carottes bio fraîchement récoltées, riches en bêta-carotène. Goût sucré et texture croquante.',
+                'description' => 'Carottes bio fraîchement récoltées, riches en bêta-carotène.',
                 'categorie_id' => $categories->where('name', 'Légumes')->first()?->id ?? $categories->first()->id,
                 'producer_id' => $producers->first()->id,
                 'quantity' => 60,
@@ -118,7 +115,7 @@ class ProduitSeeder extends Seeder
             ],
             [
                 'name' => 'Pain Complet Artisanal',
-                'description' => 'Pain complet cuit au feu de bois, farine de blé bio moulue à la meule de pierre. Croûte dorée et mie aérée.',
+                'description' => 'Pain complet cuit au feu de bois, farine de blé bio moulue à la meule de pierre.',
                 'categorie_id' => $categories->where('name', 'Pain')->first()?->id ?? $categories->first()->id,
                 'producer_id' => $producers->first()->id,
                 'quantity' => 40,
@@ -132,7 +129,7 @@ class ProduitSeeder extends Seeder
             ],
             [
                 'name' => 'Yaourt Nature Bio',
-                'description' => 'Yaourt nature bio au lait entier, fermenté naturellement. Texture onctueuse et goût authentique.',
+                'description' => 'Yaourt nature bio au lait entier, fermenté naturellement.',
                 'categorie_id' => $categories->where('name', 'Yaourt')->first()?->id ?? $categories->first()->id,
                 'producer_id' => $producers->first()->id,
                 'quantity' => 70,
@@ -146,7 +143,7 @@ class ProduitSeeder extends Seeder
             ],
             [
                 'name' => 'Poulet Fermier Bio',
-                'description' => 'Poulet fermier élevé en plein air, nourri aux céréales bio. Viande tendre et goût authentique.',
+                'description' => 'Poulet fermier élevé en plein air, nourri aux céréales bio.',
                 'categorie_id' => $categories->where('name', 'Viande')->first()?->id ?? $categories->first()->id,
                 'producer_id' => $producers->first()->id,
                 'quantity' => 15,
@@ -160,7 +157,7 @@ class ProduitSeeder extends Seeder
             ],
             [
                 'name' => 'Saumon Fumé Artisanal',
-                'description' => 'Saumon fumé artisanal, fumé au bois de hêtre. Texture fondante et goût délicat.',
+                'description' => 'Saumon fumé artisanal, fumé au bois de hêtre.',
                 'categorie_id' => $categories->where('name', 'Poisson')->first()?->id ?? $categories->first()->id,
                 'producer_id' => $producers->first()->id,
                 'quantity' => 20,
@@ -170,76 +167,6 @@ class ProduitSeeder extends Seeder
                 'images' => [
                     'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=500&h=500&fit=crop',
                     'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=500&h=500&fit=crop'
-                ]
-            ],
-            [
-                'name' => 'Tomates Cerises Bio',
-                'description' => 'Tomates cerises bio, sucrées et juteuses. Cultivées en serre chauffée pour une disponibilité toute l\'année.',
-                'categorie_id' => $categories->where('name', 'Légumes')->first()?->id ?? $categories->first()->id,
-                'producer_id' => $producers->first()->id,
-                'quantity' => 45,
-                'price' => 4.50,
-                'measure' => 'g',
-                'isbio' => true,
-                'images' => [
-                    'https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=500&h=500&fit=crop',
-                    'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=500&h=500&fit=crop'
-                ]
-            ],
-            [
-                'name' => 'Beurre Fermier Bio',
-                'description' => 'Beurre fermier bio, riche et onctueux. Fabriqué à partir de crème fraîche de vaches nourries à l\'herbe.',
-                'categorie_id' => $categories->where('name', 'Beurre')->first()?->id ?? $categories->first()->id,
-                'producer_id' => $producers->first()->id,
-                'quantity' => 35,
-                'price' => 6.80,
-                'measure' => 'g',
-                'isbio' => true,
-                'images' => [
-                    'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=500&h=500&fit=crop',
-                    'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=500&h=500&fit=crop'
-                ]
-            ],
-            [
-                'name' => 'Fraises Bio de Saison',
-                'description' => 'Fraises bio de saison, parfumées et sucrées. Récoltées à la main pour préserver leur qualité.',
-                'categorie_id' => $categories->where('name', 'Fruits')->first()?->id ?? $categories->first()->id,
-                'producer_id' => $producers->first()->id,
-                'quantity' => 30,
-                'price' => 5.90,
-                'measure' => 'g',
-                'isbio' => true,
-                'images' => [
-                    'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=500&h=500&fit=crop',
-                    'https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?w=500&h=500&fit=crop'
-                ]
-            ],
-            [
-                'name' => 'Crème Fraîche Bio',
-                'description' => 'Crème fraîche bio, épaisse et onctueuse. Idéale pour la cuisine et les desserts.',
-                'categorie_id' => $categories->where('name', 'Crème')->first()?->id ?? $categories->first()->id,
-                'producer_id' => $producers->first()->id,
-                'quantity' => 40,
-                'price' => 3.20,
-                'measure' => 'L',
-                'isbio' => true,
-                'images' => [
-                    'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=500&h=500&fit=crop',
-                    'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=500&h=500&fit=crop'
-                ]
-            ],
-            [
-                'name' => 'Bœuf Bio de Race Limousine',
-                'description' => 'Viande de bœuf bio de race Limousine, élevé en pâturage. Viande tendre et goûteuse.',
-                'categorie_id' => $categories->where('name', 'Viande')->first()?->id ?? $categories->first()->id,
-                'producer_id' => $producers->first()->id,
-                'quantity' => 25,
-                'price' => 28.50,
-                'measure' => 'kg',
-                'isbio' => true,
-                'images' => [
-                    'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=500&h=500&fit=crop',
-                    'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=500&h=500&fit=crop'
                 ]
             ]
         ];
@@ -255,7 +182,10 @@ class ProduitSeeder extends Seeder
             // Télécharger et associer les images
             foreach ($images as $imageUrl) {
                 try {
-                    $response = Http::timeout(10)->get($imageUrl);
+                    $response = Http::timeout(10)
+                        ->withHeaders(['User-Agent' => 'Mozilla/5.0'])
+                        ->retry(3, 1000)
+                        ->get($imageUrl);
                     if ($response->successful()) {
                         $imageName = 'produit_' . $produit->id . '_' . uniqid() . '.jpg';
                         $imagePath = 'produits/' . $imageName;
@@ -264,7 +194,7 @@ class ProduitSeeder extends Seeder
                         Storage::disk('public')->put($imagePath, $response->body());
                         
                         // Créer l'enregistrement dans la base de données
-                        ProductImage::create([
+                        productImage::create([
                             'name' => $imageName,
                             'type' => 'image/jpeg',
                             'path' => $imagePath,
@@ -279,6 +209,6 @@ class ProduitSeeder extends Seeder
             $this->command->info("Produit créé: {$produit->name}");
         }
 
-        $this->command->info('Seeder ProduitSeeder terminé avec succès!');
+        $this->command->info('Seeder ProduitSeederFixed terminé avec succès!');
     }
 } 

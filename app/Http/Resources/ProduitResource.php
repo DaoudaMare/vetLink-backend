@@ -22,7 +22,7 @@ class ProduitResource extends JsonResource
             'quantity' => $this->quantity,
             'price' => $this->price,
             'measure' => $this->measure,
-            // 'images' => ProductImageResource::collection($this->whenLoaded('images')),
+            'images' => ProductImageResource::collection($this->whenLoaded('images')),
             // 'nombre_commandes' => $this->nombre_commandes,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

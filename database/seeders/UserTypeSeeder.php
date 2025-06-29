@@ -17,7 +17,9 @@ class UserTypeSeeder extends Seeder
         ];
 
         foreach ($types as $type) {
-            UserType::create($type);
+            UserType::firstOrCreate(['title' => $type['title']], $type);
         }
+
+        $this->command->info('Types d\'utilisateurs créés avec succès!');
     }
 } 
