@@ -20,19 +20,21 @@ class CustomerController extends Controller
     public function profile(Request $request): JsonResponse
     {
         $user = $request->user();
-        
-        return response()->json([
-            'message' => 'Profil client récupéré avec succès',
-            'data' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone,
-                'address' => $user->address,
-                'user_type' => $user->user_type,
-                'created_at' => $user->created_at
-            ]
-        ], 200);
+
+       return response()->json([
+    'message' => 'Profil client récupéré avec succès',
+    'data' => [
+        'id' => $user->id,
+        'full_name' => $user->firstName . ' ' . $user->lastName,
+        'email' => $user->email,
+        'tel1' => $user->tel1,
+        'tel2' => $user->tel2,
+        'address' => $user->address,
+        'user_type' => $user->userType->title ?? null,
+        'created_at' => $user->created_at,
+    ]
+], 200);
+
     }
 
     /**
@@ -148,7 +150,7 @@ class CustomerController extends Controller
     public function orderHistory(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         $orders = Commande::where('customer_id', $user->id)
             ->with(['produit.producer', 'produit.categorie'])
             ->latest()
@@ -166,7 +168,7 @@ class CustomerController extends Controller
     public function orderDetails(Request $request, Commande $order): JsonResponse
     {
         $user = $request->user();
-        
+
         // Vérifier que la commande appartient au client
         if ($order->customer_id !== $user->id) {
             return response()->json([
@@ -186,7 +188,7 @@ class CustomerController extends Controller
     public function cancelOrder(Request $request, Commande $order): JsonResponse
     {
         $user = $request->user();
-        
+
         // Vérifier que la commande appartient au client
         if ($order->customer_id !== $user->id) {
             return response()->json([
@@ -234,7 +236,7 @@ class CustomerController extends Controller
     public function recommendedProducts(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         // Logique simple de recommandation basée sur les commandes précédentes
         $userCategories = Commande::where('customer_id', $user->id)
             ->join('produits', 'commandes.product_id', '=', 'produits.id')
@@ -254,4 +256,4 @@ class CustomerController extends Controller
             'data' => ProduitResource::collection($recommendedProducts)
         ], 200);
     }
-} 
+}

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Requests\Users;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -14,25 +13,21 @@ class StoreUserRequest extends FormRequest
         return true; // Autorise tout le monde à faire cette requête
     }
 
-     /**
+    /**
      * Définition des règles de validation.
      */
     public function rules(): array
     {
         return [
-            'nom_raison_sociale' => 'required|string|max:255',  
-            'type_user' => 'required|in:particulier,association,entreprise,startup,admin,moderateur',
-            'secteur_activite' => 'nullable|in:production_agricole,elevage,transformation,distribution,export,peche', 
+            'firstName' => 'required|string|max:255',
+            'lastName' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'telephone' => 'required|string|unique:users,telephone',
-            'pays' => 'required|string|max:255',
-            'ville' => 'nullable|string|max:255',
-            'coordonnees_gps' => 'nullable|string|max:255',
-            'adresse_physique' => 'nullable|string|max:255',
-            'photo_profil' => 'nullable|string',
-            'description' => 'nullable|string',
-            'password' => 'required|string|min:6',
-            'liens_reseaux_sociaux' => 'nullable|json',
+            'tel1' => 'required|string|unique:users,tel1',
+            'tel2' => 'nullable|string|unique:users,tel2',
+            'address' => 'nullable|string|max:255',
+            'user_type_id' => 'required|exists:user_types,id',
+            'organisation_id' => 'nullable|exists:organisations,id',
+            'password' => 'required|string|min:6|confirmed',
         ];
     }
 
@@ -42,20 +37,37 @@ class StoreUserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nom_raison_sociale.required' => 'Le nom ou raison sociale est obligatoire.',
-            'type_user.required' => 'Le type d\'utilisateur est requis.',
-            'type_user.in' => 'Le type d\'utilisateur doit être particulier soit association soit entreprise soit startup soit startup.',
-            'secteur_activite.in' => 'Le type de secteur d\'activité doit être production_agricole soit elevage soit transformation soit distribution soit export soit peche.',
+            'firstName.required' => 'Le prénom est obligatoire.',
+            'firstName.string' => 'Le prénom doit être une chaîne de caractères.',
+            'firstName.max' => 'Le prénom ne doit pas dépasser 255 caractères.',
+
+            'lastName.required' => 'Le nom est obligatoire.',
+            'lastName.string' => 'Le nom doit être une chaîne de caractères.',
+            'lastName.max' => 'Le nom ne doit pas dépasser 255 caractères.',
+
             'email.required' => 'L\'adresse email est obligatoire.',
-            'email.email' => 'L\'adresse email n\'est pas valide.',
+            'email.email' => 'L\'adresse email doit être valide.',
             'email.unique' => 'Cet email est déjà utilisé.',
-            'telephone.required' => 'Le numéro de téléphone est obligatoire.',
-            'telephone.unique' => 'Ce numéro de téléphone est déjà utilisé.',
+
+            'tel1.required' => 'Le numéro de téléphone principal est obligatoire.',
+            'tel1.string' => 'Le numéro de téléphone principal doit être une chaîne.',
+            'tel1.unique' => 'Ce numéro de téléphone principal est déjà utilisé.',
+
+            'tel2.string' => 'Le numéro de téléphone secondaire doit être une chaîne.',
+            'tel2.unique' => 'Ce numéro de téléphone secondaire est déjà utilisé.',
+
+            'address.string' => 'L\'adresse doit être une chaîne de caractères.',
+            'address.max' => 'L\'adresse ne doit pas dépasser 255 caractères.',
+
+            'user_type_id.required' => 'Le type d\'utilisateur est obligatoire.',
+            'user_type_id.exists' => 'Le type d\'utilisateur sélectionné est invalide.',
+
+            'organisation_id.exists' => 'L\'organisation sélectionnée est invalide.',
+
             'password.required' => 'Le mot de passe est obligatoire.',
+            'password.string' => 'Le mot de passe doit être une chaîne de caractères.',
             'password.min' => 'Le mot de passe doit contenir au moins 6 caractères.',
-            'pays.required' => 'Le pays est requis.',
-            'photo_profil.string' => 'La photo de profil doit être une chaîne de caractères.',
-            'liens_reseaux_sociaux.json' => 'Les liens des réseaux sociaux doivent être un format JSON valide.',
+            'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
         ];
     }
 }

@@ -19,20 +19,22 @@ class ProducerController extends Controller
     public function profile(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         return response()->json([
-            'message' => 'Profil producteur récupéré avec succès',
-            'data' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone,
-                'address' => $user->address,
-                'business_sector' => $user->businessSector,
-                'user_type' => $user->user_type,
-                'created_at' => $user->created_at
-            ]
-        ], 200);
+         'message' => 'Profil producteur récupéré avec succès',
+        'data' => [
+        'id' => $user->id,
+        'full_name' => $user->firstName . ' ' . $user->lastName,
+        'email' => $user->email,
+        'tel1' => $user->tel1,
+        'tel2' => $user->tel2,
+        'address' => $user->address,
+        'user_type' => $user->userType->title ?? null,
+        'organization' => $user->organization->name ?? null,
+        'created_at' => $user->created_at,
+    ]
+], 200);
+
     }
 
     /**
@@ -69,7 +71,7 @@ class ProducerController extends Controller
         ]);
 
         $user = $request->user();
-        
+
         $product = Produit::create([
             'name' => $request->name,
             'description' => $request->description,
@@ -105,7 +107,7 @@ class ProducerController extends Controller
     public function updateProduct(Request $request, Produit $product): JsonResponse
     {
         $user = $request->user();
-        
+
         // Vérifier que le produit appartient au producteur
         if ($product->producer_id !== $user->id) {
             return response()->json([
@@ -139,7 +141,7 @@ class ProducerController extends Controller
     public function deleteProduct(Request $request, Produit $product): JsonResponse
     {
         $user = $request->user();
-        
+
         // Vérifier que le produit appartient au producteur
         if ($product->producer_id !== $user->id) {
             return response()->json([
@@ -160,7 +162,7 @@ class ProducerController extends Controller
     public function myOrders(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         $orders = Commande::whereHas('produit', function($query) use ($user) {
             $query->where('producer_id', $user->id);
         })
@@ -180,12 +182,12 @@ class ProducerController extends Controller
     public function statistics(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         $totalProducts = Produit::where('producer_id', $user->id)->count();
         $totalOrders = Commande::whereHas('produit', function($query) use ($user) {
             $query->where('producer_id', $user->id);
         })->count();
-        
+
         $totalRevenue = Commande::whereHas('produit', function($query) use ($user) {
             $query->where('producer_id', $user->id);
         })->where('payment', 1)->sum('total_price');
@@ -202,4 +204,4 @@ class ProducerController extends Controller
             ]
         ], 200);
     }
-} 
+}
