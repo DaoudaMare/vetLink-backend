@@ -31,6 +31,7 @@ class CustomerController extends Controller
         'tel2' => $user->tel2,
         'address' => $user->address,
         'user_type' => $user->userType->title ?? null,
+        'profile_photo_url' => $user->photo_url,
         'created_at' => $user->created_at,
     ]
 ], 200);
@@ -256,4 +257,45 @@ class CustomerController extends Controller
             'data' => ProduitResource::collection($recommendedProducts)
         ], 200);
     }
+
+/**
+ * Obtenir les commandes passées aujourd'hui par le client
+ */
+public function todaysOrders(Request $request): JsonResponse
+{
+    $user = $request->user();
+
+    $orders = Commande::where('customer_id', $user->id)
+        ->whereDate('created_at', today())
+        ->with(['produit.producer', 'produit.categorie'])
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return response()->json([
+        'message' => 'Commandes du jour récupérées avec succès',
+        'count' => $orders->count(),
+        'data' => CommandeResource::collection($orders)
+    ], 200);
+}
+
+/**
+ * Obtenir les commandes en cours (non terminées) du client
+ */
+public function currentOrders(Request $request): JsonResponse
+{
+    $user = $request->user();
+
+    $orders = Commande::where('customer_id', $user->id)
+        ->whereNotIn('status', [3, 4]) // Exclure Annulé (3) et Terminé (4)
+        ->with(['produit.producer', 'produit.categorie'])
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return response()->json([
+        'message' => 'Commandes en cours récupérées avec succès',
+        'count' => $orders->count(),
+        'data' => CommandeResource::collection($orders)
+    ], 200);
+}
+
 }

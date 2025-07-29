@@ -2,23 +2,25 @@
 
 // use App\Models\User;
 // use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Route;
-// use Illuminate\Support\Facades\Validator;
-use App\Http\Controllers\ProduitController;
-
-use App\Http\Controllers\SecteurController;
 use App\Http\Controllers\ActiviteController;
-use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\SousSecteurController;
+// use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Api\AuthentificationController;
-use App\Http\Controllers\Api\ProfileProggressController;
-use App\Http\Controllers\Api\ProducerController;
+// use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\CustomerController;
+
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\ProducerController;
+use App\Http\Controllers\API\ProfilePhotoController;
+use App\Http\Controllers\Api\ProfileProggressController;
 use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\CommandeController;
+use App\Http\Controllers\ProduitController;
+use App\Http\Controllers\SecteurController;
+use App\Http\Controllers\SousSecteurController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
 
 
 /*
@@ -46,17 +48,19 @@ Route::get('/categories', [CustomerController::class, 'categories']);
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthentificationController::class, 'logout']);
-    
+
     // Routes utilisateurs
     Route::get('/users', [UserController::class, 'index']);
     Route::get('/users/{id}', [UserController::class, 'show']);
     Route::put('/users/{id}', [UserController::class, 'update']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
-    
+
+     Route::post('/profile-photo', [ProfilePhotoController::class, 'update']);
+
     // Routes profil progress
     Route::get('/profile-progress/{user_id}', [ProfileProggressController::class, 'show']);
     Route::put('/profile-progress/{id}', [ProfileProggressController::class, 'update']);
-    
+
     // Routes producteurs
     Route::prefix('producer')->group(function () {
         Route::get('/profile', [ProducerController::class, 'profile']);
@@ -67,11 +71,13 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::get('/orders', [ProducerController::class, 'myOrders']);
         Route::get('/statistics', [ProducerController::class, 'statistics']);
     });
-    
+
     // Routes clients
     Route::prefix('customer')->group(function () {
         Route::get('/profile', [CustomerController::class, 'profile']);
         Route::get('/search-products', [CustomerController::class, 'searchProducts']);
+        Route::get('/orders/today', [CustomerController::class, 'todaysOrders']);
+        Route::get('/orders/current', [CustomerController::class, 'currentOrders']);
         Route::get('/products/{product}', [CustomerController::class, 'productDetails']);
         Route::post('/orders', [CustomerController::class, 'placeOrder']);
         Route::get('/orders', [CustomerController::class, 'orderHistory']);
@@ -79,7 +85,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::put('/orders/{order}/cancel', [CustomerController::class, 'cancelOrder']);
         Route::get('/recommended-products', [CustomerController::class, 'recommendedProducts']);
     });
-    
+
     // Routes notifications
     Route::prefix('notifications')->group(function () {
         Route::get('/', [NotificationController::class, 'index']);
@@ -87,7 +93,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::put('/mark-all-as-read', [NotificationController::class, 'markAllAsRead']);
         Route::delete('/', [NotificationController::class, 'destroy']);
     });
-    
+
     // Routes évaluations
     Route::prefix('reviews')->group(function () {
         Route::get('/products/{product}', [ReviewController::class, 'productReviews']);
@@ -95,11 +101,12 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::put('/', [ReviewController::class, 'update']);
         Route::delete('/', [ReviewController::class, 'destroy']);
     });
-    
+
+
     // Routes produits (admin/producteur)
     Route::get('produits', [ProduitController::class, 'index']);
     Route::post('produits', [ProduitController::class,'store']);
-    
+
     // Routes commandes
     Route::get('/commande', [CommandeController::class, 'index']);
     Route::post('/commande', [CommandeController::class, 'store']);
@@ -109,9 +116,10 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::put('/{commande}/delivery-status', [CommandeController::class, 'updateDeliveryStatus']);
     Route::put('/{commande}/payment-status', [CommandeController::class, 'updatePaymentStatus']);
     Route::get('/customer/{customerId}', [CommandeController::class, 'customerOrders']);
+
 });
 
 // Routes pour les commandes
 Route::prefix('commandes')->group(function () {
-   
+
 });

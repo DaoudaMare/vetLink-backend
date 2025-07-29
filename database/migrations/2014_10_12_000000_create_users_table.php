@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->foreignIdFor(UserType::class)->constrained('user_types')->cascadeOnDelete();
             $table->string('password');
+            $table->string('profile_photo_path')->nullable();
             $table->foreignIdFor(Organization::class)->nullable()->constrained('organisations')->cascadeOnDelete();
             $table->softDeletes();
             $table->timestamps();

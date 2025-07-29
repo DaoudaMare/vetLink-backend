@@ -6,13 +6,14 @@ namespace App\Models;
 
 use App\Models\Organization;
 use App\Models\UserType;
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements FilamentUser
 {
@@ -23,13 +24,13 @@ class User extends Authenticatable implements FilamentUser
      *
      * @var array<int, string>
      */
-    
+
     protected $fillable = [
         'id', 'firstName', 'lastName', 'email', 'tel1', 'tel2', 'user_type_id', 'password', 'organization_id',
     ];
 
     /**
-     * Relation One-to-One : 
+     * Relation One-to-One :
      * Un utilisateur appartient à un type d'utilisateur.
      */
     public function userType()
@@ -38,7 +39,7 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Relation One-to-One : 
+     * Relation One-to-One :
      * Un utilisateur peut appartenir à une organisation.
      */
     public function organization()
@@ -55,7 +56,7 @@ class User extends Authenticatable implements FilamentUser
         if (!$this->relationLoaded('userType')) {
             $this->load('userType');
         }
-        
+
         return $this->userType && $this->userType->title === 'Admin';
     }
 
@@ -68,7 +69,7 @@ class User extends Authenticatable implements FilamentUser
         if (!$this->relationLoaded('userType')) {
             $this->load('userType');
         }
-        
+
         return $this->userType && $this->userType->title === 'Admin';
     }
 
@@ -101,4 +102,48 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->getUserNameAttribute();
     }
+
+
+
+public function uploadProfilePhoto($file)
+{
+    // Validation supplémentaire du fichier
+    if (!$file->isValid()) {
+        throw new \Exception('Fichier image invalide');
+    }
+
+    $directory = 'profile-photos/' . ($this->userType->is_producer ? 'producers' : 'clients');
+
+    // Suppression sécurisée de l'ancienne photo
+    if ($this->profile_photo_path && Storage::disk('public')->exists($this->profile_photo_path)) {
+        Storage::disk('public')->delete($this->profile_photo_path);
+    }
+
+    // Stockage avec nom de fichier unique
+    $filename = 'user-' . $this->id . '-' . time() . '.' . $file->extension();
+    $path = $file->storeAs($directory, $filename, 'public');
+
+    // Mise à jour atomique
+    $this->forceFill(['profile_photo_path' => $path])->save();
+
+    return $path;
+}
+
+public function getPhotoUrlAttribute()
+{
+    if (!$this->profile_photo_path) {
+        return $this->getDefaultAvatarUrl();
+    }
+
+    return Storage::disk('public')->exists($this->profile_photo_path)
+        ? Storage::url($this->profile_photo_path)
+        : $this->getDefaultAvatarUrl();
+}
+
+protected function getDefaultAvatarUrl()
+{
+    return asset($this->userType->is_producer
+        ? 'images/default-farmer.png'
+        : 'images/default-customer.png');
+}
 }
