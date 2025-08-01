@@ -21,6 +21,7 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'tel1' => $this->tel1,
             'tel2' => $this->tel2,
+            'photo_url' => $this->photo_url, // Ajout de l'URL de la photo de profil
             'user_type' => $this->whenLoaded('userType', function() {
                 return [
                     'id' => $this->userType->id,

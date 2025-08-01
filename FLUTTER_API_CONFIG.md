@@ -1,372 +1,228 @@
-# 📱 Configuration Flutter - API Laravel
+## 📱 Guide d'Implémentation Mobile (Flutter) - Notifications en Temps Réel avec WebSockets
 
-## 🌐 URLs de Base
+Cette section est destinée à l'équipe de développement mobile pour les guider dans l'implémentation de la réception de notifications en temps réel via WebSockets.
 
-### Développement Local
-```dart
-// Pour le développement local
-const String baseUrl = 'http://10.0.2.2:8000/api';  // Android Emulator
-// OU
-const String baseUrl = 'http://localhost:8000/api';  // iOS Simulator
-// OU
-const String baseUrl = 'http://192.168.1.XXX:8000/api';  // Appareil physique
-```
+Le backend utilise **Laravel Echo** et un serveur WebSocket compatible **Pusher** (comme Soketi ou le service Pusher lui-même) pour diffuser des événements sur des canaux privés.
 
-### Production
-```dart
-const String baseUrl = 'https://votre-domaine.com/api';
-```
+### 1. Dépendances Requises
 
-## 🔧 Configuration Flutter
+Ajoutez les paquets suivants à votre fichier `pubspec.yaml` :
 
-### 1. **Fichier de configuration API**
-
-Créez un fichier `lib/config/api_config.dart` :
-
-```dart
-class ApiConfig {
-  // URLs de base
-  static const String localBaseUrl = 'http://10.0.2.2:8000/api';
-  static const String productionBaseUrl = 'https://votre-domaine.com/api';
-  
-  // URL active (changez selon l'environnement)
-  static const String baseUrl = localBaseUrl;
-  
-  // Endpoints
-  static const String login = '/login';
-  static const String register = '/register';
-  static const String logout = '/v1/logout';
-  
-  // Produits
-  static const String products = '/products';
-  static const String categories = '/categories';
-  
-  // Producteurs
-  static const String producerProfile = '/v1/producer/profile';
-  static const String producerProducts = '/v1/producer/products';
-  static const String producerOrders = '/v1/producer/orders';
-  static const String producerStatistics = '/v1/producer/statistics';
-  
-  // Clients
-  static const String customerProfile = '/v1/customer/profile';
-  static const String customerSearchProducts = '/v1/customer/search-products';
-  static const String customerOrders = '/v1/customer/orders';
-  static const String customerRecommendedProducts = '/v1/customer/recommended-products';
-  
-  // Notifications
-  static const String notifications = '/v1/notifications';
-  
-  // Évaluations
-  static const String reviews = '/v1/reviews';
-}
-```
-
-### 2. **Service API**
-
-Créez un fichier `lib/services/api_service.dart` :
-
-```dart
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import '../config/api_config.dart';
-
-class ApiService {
-  static String? _token;
-  
-  // Initialiser le token depuis le stockage local
-  static Future<void> initializeToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    _token = prefs.getString('auth_token');
-  }
-  
-  // Sauvegarder le token
-  static Future<void> saveToken(String token) async {
-    _token = token;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('auth_token', token);
-  }
-  
-  // Supprimer le token
-  static Future<void> clearToken() async {
-    _token = null;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('auth_token');
-  }
-  
-  // Headers pour les requêtes authentifiées
-  static Map<String, String> get _authHeaders => {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    if (_token != null) 'Authorization': 'Bearer $_token',
-  };
-  
-  // Headers pour les requêtes publiques
-  static Map<String, String> get _publicHeaders => {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  };
-  
-  // Méthode générique pour les requêtes GET
-  static Future<Map<String, dynamic>> get(String endpoint) async {
-    try {
-      final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}$endpoint'),
-        headers: _authHeaders,
-      );
-      
-      return _handleResponse(response);
-    } catch (e) {
-      throw Exception('Erreur réseau: $e');
-    }
-  }
-  
-  // Méthode générique pour les requêtes POST
-  static Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> data) async {
-    try {
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}$endpoint'),
-        headers: _authHeaders,
-        body: jsonEncode(data),
-      );
-      
-      return _handleResponse(response);
-    } catch (e) {
-      throw Exception('Erreur réseau: $e');
-    }
-  }
-  
-  // Méthode générique pour les requêtes PUT
-  static Future<Map<String, dynamic>> put(String endpoint, Map<String, dynamic> data) async {
-    try {
-      final response = await http.put(
-        Uri.parse('${ApiConfig.baseUrl}$endpoint'),
-        headers: _authHeaders,
-        body: jsonEncode(data),
-      );
-      
-      return _handleResponse(response);
-    } catch (e) {
-      throw Exception('Erreur réseau: $e');
-    }
-  }
-  
-  // Méthode générique pour les requêtes DELETE
-  static Future<Map<String, dynamic>> delete(String endpoint) async {
-    try {
-      final response = await http.delete(
-        Uri.parse('${ApiConfig.baseUrl}$endpoint'),
-        headers: _authHeaders,
-      );
-      
-      return _handleResponse(response);
-    } catch (e) {
-      throw Exception('Erreur réseau: $e');
-    }
-  }
-  
-  // Gestion des réponses
-  static Map<String, dynamic> _handleResponse(http.Response response) {
-    final body = jsonDecode(response.body);
-    
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return body;
-    } else {
-      throw Exception(body['message'] ?? 'Erreur inconnue');
-    }
-  }
-}
-```
-
-### 3. **Exemples d'utilisation**
-
-#### Authentification
-```dart
-// Connexion
-Future<void> login(String email, String password) async {
-  try {
-    final response = await ApiService.post(ApiConfig.login, {
-      'email': email,
-      'password': password,
-    });
-    
-    // Sauvegarder le token
-    await ApiService.saveToken(response['token']);
-    
-    print('Connexion réussie: ${response['message']}');
-  } catch (e) {
-    print('Erreur de connexion: $e');
-  }
-}
-
-// Inscription
-Future<void> register(String name, String email, String password) async {
-  try {
-    final response = await ApiService.post(ApiConfig.register, {
-      'name': name,
-      'email': email,
-      'password': password,
-      'user_type': 'client',
-    });
-    
-    print('Inscription réussie: ${response['message']}');
-  } catch (e) {
-    print('Erreur d\'inscription: $e');
-  }
-}
-```
-
-#### Produits
-```dart
-// Récupérer les produits
-Future<List<dynamic>> getProducts() async {
-  try {
-    final response = await ApiService.get(ApiConfig.products);
-    return response['data']['data'];
-  } catch (e) {
-    print('Erreur récupération produits: $e');
-    return [];
-  }
-}
-
-// Rechercher des produits
-Future<List<dynamic>> searchProducts({
-  String? search,
-  int? categorieId,
-  double? minPrice,
-  double? maxPrice,
-  bool? isBio,
-}) async {
-  try {
-    final queryParams = <String, String>{};
-    if (search != null) queryParams['search'] = search;
-    if (categorieId != null) queryParams['categorie_id'] = categorieId.toString();
-    if (minPrice != null) queryParams['min_price'] = minPrice.toString();
-    if (maxPrice != null) queryParams['max_price'] = maxPrice.toString();
-    if (isBio != null) queryParams['isbio'] = isBio.toString();
-    
-    final uri = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.customerSearchProducts}')
-        .replace(queryParameters: queryParams);
-    
-    final response = await http.get(uri, headers: ApiService._authHeaders);
-    final body = jsonDecode(response.body);
-    
-    return body['data']['data'];
-  } catch (e) {
-    print('Erreur recherche produits: $e');
-    return [];
-  }
-}
-```
-
-#### Commandes
-```dart
-// Passer une commande
-Future<void> placeOrder(int productId, int quantity) async {
-  try {
-    final response = await ApiService.post(ApiConfig.customerOrders, {
-      'product_id': productId,
-      'quantity': quantity,
-    });
-    
-    print('Commande passée: ${response['message']}');
-  } catch (e) {
-    print('Erreur commande: $e');
-  }
-}
-
-// Historique des commandes
-Future<List<dynamic>> getOrderHistory() async {
-  try {
-    final response = await ApiService.get(ApiConfig.customerOrders);
-    return response['data']['data'];
-  } catch (e) {
-    print('Erreur historique commandes: $e');
-    return [];
-  }
-}
-```
-
-## 📱 Configuration Flutter
-
-### 1. **Dépendances dans pubspec.yaml**
 ```yaml
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.1.0
-  shared_preferences: ^2.2.2
-  dio: ^5.3.2  # Alternative à http
+  # Pour la communication WebSocket avec Laravel Echo
+  laravel_echo: ^1.1.0
+  pusher_client: ^2.0.0 # Ou une version plus récente
+
+  # Pour afficher les notifications locales à l'utilisateur
+  flutter_local_notifications: ^17.0.0 # Ou une version plus récente
 ```
 
-### 2. **Permissions Android**
+N'oubliez pas d'exécuter `flutter pub get`.
 
-Dans `android/app/src/main/AndroidManifest.xml` :
-```xml
-<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-```
+### 2. Configuration du Client Echo
 
-### 3. **Permissions iOS**
+Il est recommandé de créer un service pour gérer la logique de notification. Ce service initialisera le client Echo et gérera la connexion.
 
-Dans `ios/Runner/Info.plist` :
-```xml
-<key>NSAppTransportSecurity</key>
-<dict>
-    <key>NSAllowsArbitraryLoads</key>
-    <true/>
-</dict>
-```
+**Variables d'environnement :** Les informations de connexion au serveur WebSocket (hôte, port, clé) doivent être récupérées depuis la configuration du backend. Demandez à l'équipe backend les valeurs pour :
 
-## 🔍 Test des APIs
+*   `PUSHER_APP_KEY`
+*   `PUSHER_HOST` (ex: `127.0.0.1`)
+*   `PUSHER_PORT` (ex: `6001`)
+*   `PUSHER_SCHEME` (ex: `http`)
 
-### 1. **Test avec Postman**
-- Importez la collection depuis `API_DOCUMENTATION.md`
-- Testez chaque endpoint
+**Exemple de `NotificationService.dart` :**
 
-### 2. **Test avec Flutter**
 ```dart
-// Dans votre widget
-@override
-void initState() {
-  super.initState();
-  _testApi();
-}
+import 'package:laravel_echo/laravel_echo.dart';
+import 'package:pusher_client/pusher_client.dart';
 
-Future<void> _testApi() async {
-  try {
-    final response = await ApiService.get(ApiConfig.categories);
-    print('Test API réussi: ${response['data']}');
-  } catch (e) {
-    print('Test API échoué: $e');
+class NotificationService {
+  late Echo echo;
+  final String? userToken; // Le token d'authentification Sanctum de l'utilisateur
+  final int? userId; // L'ID de l'utilisateur connecté
+
+  NotificationService({required this.userToken, required this.userId});
+
+  void init() {
+    if (userToken == null || userId == null) {
+      print('Error: User token or ID is null. Cannot initialize Echo.');
+      return;
+    }
+
+    PusherClient pusherClient = PusherClient(
+      'YOUR_PUSHER_APP_KEY', // À remplacer par la clé Pusher du backend
+      PusherOptions(
+        host: 'YOUR_PUSHER_HOST', // Hôte du serveur WebSocket
+        port: 6001, // Port du serveur WebSocket
+        encrypted: false, // Mettre à `true` si vous utilisez `https` et `wss`
+        auth: PusherAuth(
+          'http://YOUR_BACKEND_URL/broadcasting/auth', // URL d'authentification du backend
+          headers: {
+            'Authorization': 'Bearer $userToken',
+            'Accept': 'application/json',
+          },
+        ),
+      ),
+      enableLogging: true; // Activez pour le débogage
+    );
+
+    echo = Echo(
+      broadcaster: EchoBroadcasterType.Pusher,
+      client: pusherClient,
+    );
+
+    print('NotificationService initialized.');
+  }
+
+  void listenForNotifications() {
+    if (userId == null) return;
+
+    // S'abonner au canal privé de l'utilisateur
+    // Le nom du canal correspond à celui défini dans `routes/channels.php`
+    echo.private('App.Models.User.$userId')
+      .listen('.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', (e) {
+        if (e != null) {
+          print('Notification reçue: ${e.data}');
+          // e.data contient les données de la notification
+          // Exemple de données : { 'order_num': 'CMD-123', 'status': 'expédiée' }
+
+          // TODO: Analyser les données et afficher une notification locale
+          // final String title = 'Mise à jour de la commande';
+          // final String body = 'Votre commande ${e.data['order_num']} est maintenant ${e.data['status']}.';
+          // showLocalNotification(title, body);
+        }
+      });
+
+    print('Listening on private channel: App.Models.User.$userId');
+  }
+
+  void disconnect() {
+    echo.disconnect();
+    print('Echo disconnected.');
   }
 }
 ```
 
-## 🚨 Résolution des problèmes
+### 3. Écoute des Événements
 
-### Erreur "Connection refused"
-- Vérifiez que Laravel est démarré : `php artisan serve`
-- Vérifiez l'URL dans `ApiConfig.baseUrl`
+*   **Canal d'écoute :** Comme défini dans `routes/channels.php`, chaque utilisateur a un canal privé : `App.Models.User.{id}`. Vous devez vous y abonner en utilisant l'ID de l'utilisateur connecté.
 
-### Erreur CORS
-- Vérifiez la configuration CORS dans `config/cors.php`
-- Redémarrez le serveur Laravel
+*   **Nom de l'événement :** Pour les notifications standards de Laravel, le nom de l'événement à écouter est `.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated`.
 
-### Erreur "Invalid token"
-- Vérifiez que l'authentification fonctionne
-- Vérifiez le format du token dans les headers
+*   **Données de l'événement :** L'objet `e.data` reçu contiendra la charge utile de la notification que vous avez définie dans la méthode `toBroadcast` de votre classe de notification côté backend.
 
-## 📊 Monitoring
+### 4. Affichage des Notifications Locales
 
-### Logs Laravel
-```bash
-tail -f storage/logs/laravel.log
-```
+Une fois qu'un événement est reçu via le WebSocket, utilisez le paquet `flutter_local_notifications` pour afficher une notification visible à l'utilisateur, même si l'application est en arrière-plan (mais toujours en cours d'exécution).
 
-### Debug Flutter
-```dart
-print('URL: ${ApiConfig.baseUrl}');
-print('Token: $_token');
-print('Response: $response');
-``` 
+1.  **Initialisez `flutter_local_notifications`** au démarrage de votre application.
+2.  **Créez une fonction** `showLocalNotification(String title, String body)`.
+3.  **Appelez cette fonction** depuis le callback `.listen()` de votre client Echo.
+
+### 5. Gestion du Cycle de Vie
+
+*   **Initialisation :** Initialisez le `NotificationService` et appelez `init()` et `listenForNotifications()` après que l'utilisateur se soit connecté avec succès.
+*   **Déconnexion :** Appelez `disconnect()` lorsque l'utilisateur se déconnecte pour fermer la connexion WebSocket.
+*   **Reprise de l'application :** Lorsque l'application revient du mode arrière-plan, il peut être nécessaire de vérifier l'état de la connexion WebSocket et de la rétablir si elle a été interrompue par le système d'exploitation.
+
+---
+
+## 💬 Guide d'Implémentation Mobile (Flutter) - Fonctionnalités de Chat
+
+Cette section détaille comment implémenter les fonctionnalités de chat dans votre application Flutter, en utilisant les APIs RESTful du backend et les WebSockets pour les messages en temps réel.
+
+### 1. Architecture Générale
+
+Le chat repose sur deux piliers :
+
+*   **APIs RESTful :** Pour la gestion des conversations (liste, démarrage, suppression) et la récupération de l'historique des messages.
+*   **WebSockets (Laravel Echo) :** Pour l'envoi et la réception de messages en temps réel.
+
+### 2. Gestion des Conversations
+
+Utilisez les endpoints suivants pour gérer les conversations :
+
+*   **Lister les conversations :**
+    *   **Endpoint:** `GET /api/chat/conversations`
+    *   **Description:** Récupère une liste paginée des conversations de l'utilisateur connecté.
+    *   **Paramètres de requête (optionnels):** `filter` (e.g., `unread`), `with_role` (e.g., `Producteur`), `per_page`.
+    *   **Implémentation Flutter :** Utilisez un client HTTP (e.g., `dio`, `http`) pour effectuer cette requête. Gérez la pagination si nécessaire.
+
+*   **Démarrer une nouvelle conversation :**
+    *   **Endpoint:** `POST /api/chat/conversations/start`
+    *   **Description:** Crée une nouvelle conversation entre l'utilisateur connecté et un autre utilisateur, potentiellement liée à un produit ou une commande.
+    *   **Corps de la requête:** `user_id` (requis), `product_id` (optionnel), `order_id` (optionnel).
+    *   **Implémentation Flutter :** Envoyez une requête POST avec le corps JSON approprié. Il est recommandé de vérifier si une conversation existe déjà avant d'en créer une nouvelle.
+
+*   **Quitter une conversation :**
+    *   **Endpoint:** `DELETE /api/chat/conversations/{conversation}`
+    *   **Description:** Permet à un utilisateur de quitter une conversation.
+    *   **Implémentation Flutter :** Envoyez une requête DELETE à l'endpoint.
+
+### 3. Gestion des Messages (Historique & Envoi)
+
+*   **Messages d'une conversation :**
+    *   **Endpoint:** `GET /api/chat/conversations/{conversation}/messages`
+    *   **Description:** Récupère une liste paginée des messages d'une conversation spécifique.
+    *   **Paramètres de requête (optionnels):** `per_page`.
+    *   **Implémentation Flutter :** Utilisez un client HTTP pour récupérer l'historique des messages. Affichez-les dans une interface de chat (e.g., `ListView.builder`).
+
+*   **Envoyer un message :**
+    *   **Endpoint:** `POST /api/chat/conversations/{conversation}/messages`
+    *   **Description:** Permet d'envoyer un message (texte, image, vidéo, document) dans une conversation.
+    *   **Corps de la requête:** `body` (texte) ou `file` (fichier multipart).
+    *   **Implémentation Flutter :**
+        *   **Texte :** Envoyez une requête POST avec le corps JSON contenant le `body`.
+        *   **Fichier :** Utilisez `multipart/form-data` pour envoyer le fichier. Le backend gérera le type de message (`image`, `video`, `document`) en fonction du type MIME du fichier.
+
+*   **Marquer un message comme lu :**
+    *   **Endpoint:** `POST /api/chat/messages/{message}/read`
+    *   **Description:** Marque un message spécifique comme lu par l'utilisateur connecté.
+    *   **Implémentation Flutter :** Envoyez une requête POST à l'endpoint.
+
+### 4. Réception des Messages en Temps Réel (WebSockets)
+
+Les nouveaux messages sont diffusés via le même système WebSocket que les notifications.
+
+*   **Réutilisation de `NotificationService` :** Vous pouvez étendre ou adapter votre `NotificationService` (ou un service de chat dédié) pour écouter les événements de message.
+
+*   **Canal d'écoute :** Les messages sont diffusés sur le canal privé de la conversation. Le nom du canal sera `private-chat.conversations.{conversation_id}`.
+
+*   **Nom de l'événement :** L'événement diffusé pour un nouveau message est `.App\\Events\\MessageSent`.
+
+*   **Exemple d'écoute dans Flutter (dans votre service Echo/Chat) :**
+
+    ```dart
+    void listenForChatMessages(int conversationId) {
+      echo.private('chat.conversations.$conversationId')
+        .listen('.App\\Events\\MessageSent', (e) {
+          if (e != null && e.data != null) {
+            print('Nouveau message reçu: ${e.data}');
+            // e.data contiendra les détails du message (id, user_id, body, file_url, etc.)
+            // TODO: Ajouter le message à l'interface utilisateur du chat
+            // final newMessage = Message.fromJson(e.data);
+            // updateChatUI(newMessage);
+          }
+        });
+      print('Listening for chat messages on conversation $conversationId');
+    }
+    ```
+
+### 5. Gestion de l'Interface Utilisateur du Chat
+
+*   **Affichage des messages :** Utilisez un `ListView.builder` pour afficher les messages, en faisant défiler automatiquement vers le bas pour les nouveaux messages.
+*   **Saisie de message :** Un champ de texte pour la saisie et un bouton pour l'envoi.
+*   **Upload de fichiers :** Intégrez des sélecteurs de fichiers (images, vidéos, documents) pour permettre l'envoi de médias.
+*   **Indicateurs de lecture :** Mettez à jour l'état des messages pour indiquer s'ils ont été lus.
+
+### 6. Bonnes Pratiques
+
+*   **Gestion de l'état :** Utilisez un gestionnaire d'état (Provider, Riverpod, BLoC, GetX) pour gérer les conversations, les messages et l'état de la connexion WebSocket.
+*   **Optimisation des performances :** Pour les conversations avec de nombreux messages, implémentez la pagination côté client pour charger les messages au fur et à mesure du défilement.
+*   **Gestion des erreurs :** Implémentez une gestion robuste des erreurs pour les requêtes HTTP et les connexions WebSocket.
+*   **Sécurité :** Assurez-vous que toutes les requêtes API sont authentifiées avec le token de l'utilisateur.
+
+Ce guide devrait vous aider à démarrer l'implémentation du chat dans votre application Flutter.

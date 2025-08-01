@@ -10,15 +10,28 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\ProduitResource;
 use App\Http\Resources\CommandeResource;
+use App\Models\ProductImage;
+use App\Services\NotificationService;
+use Illuminate\Support\Facades\Storage;
 
 class ProducerController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     /**
      * Obtenir le profil du producteur connecté
      */
     public function profile(Request $request): JsonResponse
     {
         $user = $request->user();
+        if (!$user->isProducer()) {
+            return response()->json(['message' => 'Accès non autorisé'], 403);
+        }
 
         return response()->json([
          'message' => 'Profil producteur récupéré avec succès',
@@ -43,6 +56,10 @@ class ProducerController extends Controller
     public function myProducts(Request $request): JsonResponse
     {
         $user = $request->user();
+        if (!$user->isProducer()) {
+            return response()->json(['message' => 'Accès non autorisé'], 403);
+        }
+
         $products = Produit::where('producer_id', $user->id)
             ->with(['categorie', 'images'])
             ->latest()
@@ -59,6 +76,8 @@ class ProducerController extends Controller
      */
     public function createProduct(Request $request): JsonResponse
     {
+        $this->authorize('create', Produit::class);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -97,7 +116,7 @@ class ProducerController extends Controller
 
         return response()->json([
             'message' => 'Produit créé avec succès',
-            'data' => new ProduitResource($product->load(['categorie', 'images']))
+            'data' => new ProduitResource($product->load(['categorie', 'images', 'producer']))
         ], 201);
     }
 
@@ -106,14 +125,7 @@ class ProducerController extends Controller
      */
     public function updateProduct(Request $request, Produit $product): JsonResponse
     {
-        $user = $request->user();
-
-        // Vérifier que le produit appartient au producteur
-        if ($product->producer_id !== $user->id) {
-            return response()->json([
-                'message' => 'Accès non autorisé'
-            ], 403);
-        }
+        $this->authorize('update', $product);
 
         $request->validate([
             'name' => 'sometimes|string|max:255',
@@ -140,13 +152,12 @@ class ProducerController extends Controller
      */
     public function deleteProduct(Request $request, Produit $product): JsonResponse
     {
-        $user = $request->user();
+        $this->authorize('delete', $product);
 
-        // Vérifier que le produit appartient au producteur
-        if ($product->producer_id !== $user->id) {
-            return response()->json([
-                'message' => 'Accès non autorisé'
-            ], 403);
+        // Supprimer les images associées au produit du stockage
+        foreach ($product->images as $image) {
+            Storage::disk('public')->delete($image->path);
+            $image->delete(); // Supprimer l'enregistrement de l'image de la base de données
         }
 
         $product->delete();
@@ -156,17 +167,66 @@ class ProducerController extends Controller
         ], 200);
     }
 
+    public function addProductImages(Request $request, Produit $product): JsonResponse
+    {
+        $this->authorize('update', $product);
+
+        $request->validate([
+            'images'   => 'required|array',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg|max:2048'
+        ]);
+
+        $uploadedImages = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('produits', 'public');
+                $productImage = $product->images()->create([
+                    'name' => $image->getClientOriginalName(),
+                    'type' => $image->getClientMimeType(),
+                    'path' => $path
+                ]);
+                $uploadedImages[] = $productImage;
+            }
+        }
+
+        return response()->json([
+            'message' => 'Images ajoutées avec succès',
+            'data'    => $uploadedImages
+        ], 201);
+    }
+
+    public function deleteProductImage(Request $request, Produit $product, ProductImage $image): JsonResponse
+    {
+        $this->authorize('update', $product);
+
+        // Optional: Check if the image belongs to the product for extra security
+        if ($image->product_id !== $product->id) {
+            return response()->json(['message' => 'Image not found for this product.'], 404);
+        }
+
+        Storage::disk('public')->delete($image->path);
+        $image->delete();
+
+        return response()->json([
+            'message' => 'Image supprimée avec succès'
+        ], 200);
+    }
+
+
     /**
      * Obtenir les commandes reçues par le producteur
      */
     public function myOrders(Request $request): JsonResponse
     {
         $user = $request->user();
+        if (!$user->isProducer()) {
+            return response()->json(['message' => 'Accès non autorisé'], 403);
+        }
 
-        $orders = Commande::whereHas('produit', function($query) use ($user) {
+        $orders = Commande::whereHas('produits', function($query) use ($user) {
             $query->where('producer_id', $user->id);
         })
-        ->with(['customer', 'produit'])
+        ->with(['customer', 'produits'])
         ->latest()
         ->paginate(15);
 
@@ -182,13 +242,16 @@ class ProducerController extends Controller
     public function statistics(Request $request): JsonResponse
     {
         $user = $request->user();
+        if (!$user->isProducer()) {
+            return response()->json(['message' => 'Accès non autorisé'], 403);
+        }
 
         $totalProducts = Produit::where('producer_id', $user->id)->count();
-        $totalOrders = Commande::whereHas('produit', function($query) use ($user) {
+        $totalOrders = Commande::whereHas('produits', function($query) use ($user) {
             $query->where('producer_id', $user->id);
         })->count();
 
-        $totalRevenue = Commande::whereHas('produit', function($query) use ($user) {
+        $totalRevenue = Commande::whereHas('produits', function($query) use ($user) {
             $query->where('producer_id', $user->id);
         })->where('payment', 1)->sum('total_price');
 
@@ -198,10 +261,47 @@ class ProducerController extends Controller
                 'total_products' => $totalProducts,
                 'total_orders' => $totalOrders,
                 'total_revenue' => $totalRevenue,
-                'pending_orders' => Commande::whereHas('produit', function($query) use ($user) {
+                'pending_orders' => Commande::whereHas('produits', function($query) use ($user) {
                     $query->where('producer_id', $user->id);
                 })->where('status', 0)->count()
             ]
+        ], 200);
+    }
+
+    public function showOrder(Commande $order): JsonResponse
+    {
+        $this->authorize('view', $order);
+
+        return response()->json([
+            'message' => 'Détails de la commande récupérés avec succès',
+            'data' => new CommandeResource($order->load(['customer', 'produits']))
+        ], 200);
+    }
+
+    public function updateOrderStatus(Request $request, Commande $order): JsonResponse
+    {
+        $this->authorize('updateStatus', $order);
+
+        $request->validate([
+            'status' => 'required|integer|in:0,1,2,3,4', // 0: En attente, 1: Confirmé, 2: En préparation, 3: Expédié, 4: Livré
+        ]);
+
+        $order->update(['status' => $request->status]);
+
+        $this->notificationService->createNotification(
+            $order->customer,
+            'order_status_updated',
+            [
+                'order_num' => $order->num,
+                'status' => $request->status,
+            ]
+        );
+
+        // Ici, vous pourriez vouloir déclencher des notifications pour le client.
+
+        return response()->json([
+            'message' => 'Statut de la commande mis à jour avec succès',
+            'data' => new CommandeResource($order)
         ], 200);
     }
 }

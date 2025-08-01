@@ -20,9 +20,9 @@ class ProduitPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Produit $produit): bool
+    public function view(?User $user, Produit $produit): bool
     {
-        return  true;
+        return true;
     }
 
     /**
@@ -30,7 +30,7 @@ class ProduitPolicy
      */
     public function create(User $user): bool
     {
-        return  true;
+        return $user->isProducer();
     }
 
     /**
@@ -38,7 +38,7 @@ class ProduitPolicy
      */
     public function update(User $user, Produit $produit): bool
     {
-        return true;
+        return ($user->isProducer() && $user->id === $produit->producer_id) || $user->isAdmin();
     }
 
     /**
@@ -46,7 +46,7 @@ class ProduitPolicy
      */
     public function delete(User $user, Produit $produit): bool
     {
-        return $user->role == 'admin';
+        return ($user->isProducer() && $user->id === $produit->producer_id) || $user->isAdmin();
     }
 
     /**
@@ -54,7 +54,7 @@ class ProduitPolicy
      */
     public function restore(User $user, Produit $produit): bool
     {
-        return $user->role == 'admin';
+        return $user->isAdmin();
     }
 
     /**
@@ -62,6 +62,6 @@ class ProduitPolicy
      */
     public function forceDelete(User $user, Produit $produit): bool
     {
-        return $user->role == 'admin';
+        return $user->isAdmin();
     }
 }

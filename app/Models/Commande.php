@@ -16,12 +16,11 @@ class Commande extends Model
     protected $fillable = [
         'num',
         'customer_id',
-        'product_id',
-        'Quantity',
         'total_price',
         'status',
         'delivery_status',
         'payment',
+        'created_at',
     ];
 
     /**
@@ -33,19 +32,19 @@ class Commande extends Model
     }
 
     /**
-     * Le produit commandé.
+     * Le produit commandé. (DEPRECATED)
      */
-    public function produit(): BelongsTo
-    {
-        return $this->belongsTo(Produit::class, 'product_id');
-    }
-
-    // public function produits()
+    // public function produit(): BelongsTo
     // {
-    //     return $this->belongsToMany(Produit::class, 'commande_produit')
-    //                 ->withPivot('quantity')
-    //                 ->withTimestamps();
+    //     return $this->belongsTo(Produit::class, 'product_id');
     // }
+
+    public function produits()
+    {
+        return $this->belongsToMany(Produit::class, 'commande_produit')
+                    ->withPivot('quantity')
+                    ->withTimestamps();
+    }
 
     public function payment()
     {

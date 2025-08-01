@@ -17,11 +17,12 @@ class CommandePolicy
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Un utilisateur peut voir une commande si il est le client,
+     * le producteur du produit commandé, ou un admin.
      */
     public function view(User $user, Commande $commande): bool
     {
-        return $user->isAdmin();
+        return $user->id === $commande->customer_id || ($commande->produit && $user->id === $commande->produit->producer_id) || $user->isAdmin();
     }
 
     /**
@@ -29,7 +30,15 @@ class CommandePolicy
      */
     public function create(User $user): bool
     {
-        return $user->isAdmin();
+        return $user->isCustomer();
+    }
+
+    /**
+     * Un producteur peut mettre à jour le statut d'une commande de son produit.
+     */
+    public function updateStatus(User $user, Commande $commande): bool
+    {
+        return ($commande->produit && $user->id === $commande->produit->producer_id) || $user->isAdmin();
     }
 
     /**
@@ -49,18 +58,10 @@ class CommandePolicy
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Un client peut annuler sa propre commande sous certaines conditions.
      */
-    public function restore(User $user, Commande $commande): bool
+    public function cancel(User $user, Commande $commande): bool
     {
-        return $user->isAdmin();
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Commande $commande): bool
-    {
-        return $user->isAdmin();
+        return $user->id === $commande->customer_id;
     }
 }

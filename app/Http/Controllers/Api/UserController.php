@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use App\Repositories\UserRepository;
-use App\Http\Requests\Users\UpdateUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -19,12 +21,14 @@ class UserController extends Controller
     /**
      * Liste des utilisateurs (GET /api/users)
      */
-    public function index()
+    public function index(Request $request)
     {
-        $user = $this->userRepository->getAll();
+        Auth::user()->can('viewAny', User::class);
+        $perPage = $request->query('per_page', 15);
+        $users = $this->userRepository->getAll($perPage);
         return response()->json([
             'message' => 'Listes des utilisateur recupéré avec succès',
-            'user' => $user
+            'users' => $users
         ], 200);
     }
 
@@ -39,6 +43,7 @@ class UserController extends Controller
                 'message' => 'Utilisateur non trouvé'
             ], 404);
         }
+        $this->authorize('view', $user);
         return response()->json($user, 200);
     }
 
@@ -53,6 +58,7 @@ class UserController extends Controller
                 'message' => 'Utilisateur non trouvé'
             ], 404);
         }
+        $this->authorize('update', $user);
 
         $updatedUser = $this->userRepository->update($user, $request->validated());
 
@@ -74,6 +80,7 @@ class UserController extends Controller
                 'message' => 'Utilisateur non trouvé'
             ], 404);
         }
+        $this->authorize('delete', $user);
 
         $this->userRepository->delete($user);
 

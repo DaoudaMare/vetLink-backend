@@ -28,6 +28,12 @@ class StoreUserRequest extends FormRequest
             'user_type_id' => 'required|exists:user_types,id',
             'organisation_id' => 'nullable|exists:organisations,id',
             'password' => 'required|string|min:6|confirmed',
+            'organization_name' => 'required_if:user_type_id,3|nullable|string|max:255',
+            'organization_type_id' => 'required_if:user_type_id,3|nullable|exists:organisation_types,id',
+            'business_sector_id' => 'required_if:user_type_id,3|nullable|exists:business_sectors,id',
+            'organization_address' => 'required_if:user_type_id,3|nullable|string|max:255',
+            'organization_tel1' => 'required_if:user_type_id,3|string|max:255',
+            'organization_tel2' => 'nullable|string|max:255',
         ];
     }
 
@@ -68,6 +74,20 @@ class StoreUserRequest extends FormRequest
             'password.string' => 'Le mot de passe doit être une chaîne de caractères.',
             'password.min' => 'Le mot de passe doit contenir au moins 6 caractères.',
             'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
+
+            'organization_name.required_if' => 'Le nom de l\'organisation est obligatoire pour les producteurs.',
+            'organization_name.string' => 'Le nom de l\'organisation doit être une chaîne de caractères.',
+            'organization_name.max' => 'Le nom de l\'organisation ne doit pas dépasser 255 caractères.',
+
+            'organization_type_id.required_if' => 'Le type d\'organisation est obligatoire pour les producteurs.',
+            'organization_type_id.exists' => 'Le type d\'organisation sélectionné est invalide.',
+
+            'business_sector_id.required_if' => 'Le secteur d\'activité est obligatoire pour les producteurs.',
+            'business_sector_id.exists' => 'Le secteur d\'activité sélectionné est invalide.',
+
+            'organization_address.required_if' => 'L\'adresse de l\'organisation est obligatoire pour les producteurs.',
+            'organization_address.string' => 'L\'adresse de l\'organisation doit être une chaîne de caractères.',
+            'organization_address.max' => 'L\'adresse de l\'organisation ne doit pas dépasser 255 caractères.',
         ];
     }
 }

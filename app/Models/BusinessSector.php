@@ -9,9 +9,5 @@ class BusinessSector extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'name',
-    ];
-
-    // Si vous avez des relations pour BusinessSector, vous pouvez les définir ici
-} 
+    protected $fillable = ['title'];
+}

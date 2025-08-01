@@ -10,11 +10,7 @@ class OrganizationType extends Model
     use HasFactory;
 
     protected $table = 'organisation_types';
+    use HasFactory;
 
-    protected $fillable = [
-        'name',
-        'product_name',
-    ];
-
-    // Si vous avez des relations pour OrganizationType, vous pouvez les définir ici
-} 
+    protected $fillable = ['title'];
+}

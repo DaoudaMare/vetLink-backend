@@ -16,7 +16,13 @@ class DatabaseSeeder extends Seeder
             StatusSeeder::class,
             OrganizationSeeder::class,
             UserSeeder::class,
+            ConversationSeeder::class,
+            MessageSeeder::class,
+            ProduitSeeder::class,
             ProduitLocalImagesSeeder::class,
+            CommandeSeeder::class,
+            NotificationSeeder::class,
+            ReviewSeeder::class,
         ]);
     }
 } 

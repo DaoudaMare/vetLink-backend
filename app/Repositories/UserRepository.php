@@ -2,6 +2,7 @@
 namespace App\Repositories;
 
 use App\Models\User;
+use App\Models\Organization;
 use App\Interfaces\UserInterface;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -15,6 +16,25 @@ class UserRepository implements UserInterface
     {
         // Hasher le mot de passe
         $data['password'] = Hash::make($data['password']);
+
+        // Si l'utilisateur est un producteur, créer l'organisation d'abord
+        if (isset($data['user_type_id']) && $data['user_type_id'] == 3) { // Assuming 3 is the ID for 'Producteur'
+            $organization = Organization::create([
+                'name' => $data['organization_name'],
+                'organization_type_id' => $data['organization_type_id'],
+                'business_sector_id' => $data['business_sector_id'],
+                'adresse' => $data['organization_address'],
+                'tel1' => $data['organization_tel1'], // Ajouté
+                'tel2' => $data['organization_tel2'] ?? null, // Ajouté, nullable
+            ]);
+            $data['organization_id'] = $organization->id;
+
+            // Supprimer les données de l'organisation du tableau de l'utilisateur
+            unset($data['organization_name']);
+            unset($data['organization_type_id']);
+            unset($data['business_sector_id']);
+            unset($data['organization_address']);
+        }
 
         // Créer et retourner l'utilisateur
         return User::create($data);
@@ -31,12 +51,12 @@ class UserRepository implements UserInterface
 
         // 2️⃣ Vérifier si l'utilisateur existe
         if (!$user) {
-            return response()->json(['message' => 'Utilisateur non trouvé'], 404);
+            return response()->json(['message' => 'Identifiants invalides'], 401);
         }
 
         // 3️⃣ Vérifier si le mot de passe est correct
         if (!Hash::check($credentials['password'], $user->password)) {       
-            return response()->json(['message' => 'Mot de passe incorrect'], 401);
+            return response()->json(['message' => 'Identifiants invalides'], 401);
         }
 
         // 4️⃣ Générer un token (si tu utilises Laravel Sanctum ou Passport)
@@ -61,9 +81,9 @@ class UserRepository implements UserInterface
     /**
      * Retourne tous les utilisateurs
      */
-    public function getAll()
+    public function getAll($perPage = 15)
     {
-        return User::all();
+        return User::paginate($perPage);
     }
 
     /**

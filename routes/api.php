@@ -11,7 +11,7 @@ use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProducerController;
 use App\Http\Controllers\API\ProfilePhotoController;
-use App\Http\Controllers\Api\ProfileProggressController;
+use App\Http\Controllers\Api\ProfileProgressController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\CommandeController;
@@ -40,8 +40,11 @@ Route::post('/login', [AuthentificationController::class, 'login']);
 
 // Routes publiques pour les produits
 Route::get('/products', [ProduitController::class, 'index']);
-Route::get('/products/{product}', [ProduitController::class, 'show']);
 Route::get('/categories', [CustomerController::class, 'categories']);
+Route::get('/user-types', [App\Http\Controllers\Api\UserTypeController::class, 'index']);
+Route::get('/organization-types', [App\Http\Controllers\Api\OrganizationController::class, 'getTypes']);
+Route::get('/business-sectors', [App\Http\Controllers\Api\OrganizationController::class, 'getSectors']);
+Route::get('/statuses', [App\Http\Controllers\Api\StatusController::class, 'index']);
 
 
 
@@ -58,8 +61,8 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
      Route::post('/profile-photo', [ProfilePhotoController::class, 'update']);
 
     // Routes profil progress
-    Route::get('/profile-progress/{user_id}', [ProfileProggressController::class, 'show']);
-    Route::put('/profile-progress/{id}', [ProfileProggressController::class, 'update']);
+    Route::get('/profile-progress/{user_id}', [ProfileProgressController::class, 'show']);
+    Route::put('/profile-progress/{id}', [ProfileProgressController::class, 'update']);
 
     // Routes producteurs
     Route::prefix('producer')->group(function () {
@@ -68,8 +71,12 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::post('/products', [ProducerController::class, 'createProduct']);
         Route::put('/products/{product}', [ProducerController::class, 'updateProduct']);
         Route::delete('/products/{product}', [ProducerController::class, 'deleteProduct']);
+        Route::post('/products/{product}/images', [ProducerController::class, 'addProductImages']);
+        Route::delete('/products/{product}/images/{image}', [ProducerController::class, 'deleteProductImage']);
         Route::get('/orders', [ProducerController::class, 'myOrders']);
         Route::get('/statistics', [ProducerController::class, 'statistics']);
+        Route::get('/orders/{order}', [ProducerController::class, 'showOrder']);
+        Route::put('/orders/{order}/status', [ProducerController::class, 'updateOrderStatus']);
     });
 
     // Routes clients
@@ -122,4 +129,22 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 // Routes pour les commandes
 Route::prefix('commandes')->group(function () {
 
+});
+
+// Routes pour le chat
+Route::middleware('auth:sanctum')->prefix('chat')->group(function () {
+    Route::get('/conversations', [App\Http\Controllers\Api\ChatController::class, 'conversations']);
+    Route::get('/conversations/{conversation}/messages', [App\Http\Controllers\Api\ChatController::class, 'messages']);
+    Route::post('/conversations/{conversation}/messages', [App\Http\Controllers\Api\ChatController::class, 'sendMessage']);
+    Route::post('/conversations/start', [App\Http\Controllers\Api\ChatController::class, 'startConversation']);
+    Route::post('/messages/{message}/read', [App\Http\Controllers\Api\ChatController::class, 'markAsRead']);
+    Route::delete('/conversations/{conversation}', [App\Http\Controllers\Api\ChatController::class, 'leaveConversation']);
+});
+
+// Routes pour les documents
+Route::middleware('auth:sanctum')->prefix('documents')->group(function () {
+    Route::get('/', [App\Http\Controllers\Api\DocumentController::class, 'index']);
+    Route::post('/', [App\Http\Controllers\Api\DocumentController::class, 'store']);
+    Route::get('/{document}', [App\Http\Controllers\Api\DocumentController::class, 'show']);
+    Route::delete('/{document}', [App\Http\Controllers\Api\DocumentController::class, 'destroy']);
 });

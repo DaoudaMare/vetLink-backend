@@ -79,14 +79,17 @@ class ProduitController extends Controller
      * Afficher un produit spécifique
      */
     public function show(Produit $produit): JsonResponse
-    {
-        $this->authorize('view', $produit);
+{
+    $this->authorize('view', $produit);
 
-        return response()->json([
-            'message' => 'Produit récupéré avec succès',
-            'data' => new ProduitResource($produit->load(['categorie', 'producer', 'images']))
-        ], 200);
-    }
+    $produit->load(['categorie', 'producer', 'images']);
+
+    return response()->json([
+        'message' => 'Produit récupéré avec succès',
+        'data' => new ProduitResource($produit)  // ✅ Correct : tu passes par la resource
+    ], 200);
+}
+
 
     /**
      * Mettre à jour un produit

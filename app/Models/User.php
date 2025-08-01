@@ -26,7 +26,7 @@ class User extends Authenticatable implements FilamentUser
      */
 
     protected $fillable = [
-        'id', 'firstName', 'lastName', 'email', 'tel1', 'tel2', 'user_type_id', 'password', 'organization_id',
+        'firstName', 'lastName', 'email', 'tel1', 'tel2', 'organization_id', 'user_type_id', 'password',
     ];
 
     /**
@@ -58,6 +58,42 @@ class User extends Authenticatable implements FilamentUser
         }
 
         return $this->userType && $this->userType->title === 'Admin';
+    }
+
+    /**
+     * Vérifie si l'utilisateur est un modérateur.
+     */
+    public function isModerateur(): bool
+    {
+        if (!$this->relationLoaded('userType')) {
+            $this->load('userType');
+        }
+
+        return $this->userType && $this->userType->title === 'Moderateur';
+    }
+
+    /**
+     * Vérifie si l'utilisateur est un client.
+     */
+    public function isCustomer(): bool
+    {
+        if (!$this->relationLoaded('userType')) {
+            $this->load('userType');
+        }
+
+        return $this->userType && $this->userType->title === 'Client';
+    }
+
+    /**
+     * Vérifie si l'utilisateur est un producteur.
+     */
+    public function isProducer(): bool
+    {
+        if (!$this->relationLoaded('userType')) {
+            $this->load('userType');
+        }
+
+        return $this->userType && $this->userType->title === 'Producteur';
     }
 
     /**
@@ -146,4 +182,14 @@ protected function getDefaultAvatarUrl()
         ? 'images/default-farmer.png'
         : 'images/default-customer.png');
 }
+
+    public function conversations()
+    {
+        return $this->belongsToMany(Conversation::class);
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
+    }
 }

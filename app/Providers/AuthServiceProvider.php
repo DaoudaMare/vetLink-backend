@@ -20,6 +20,10 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         Produit::class => ProduitPolicy::class,
         Commande::class => CommandePolicy::class,
+        \App\Models\Conversation::class => \App\Policies\ConversationPolicy::class,
+        \App\Models\Document::class => \App\Policies\DocumentPolicy::class,
+        \App\Models\User::class => \App\Policies\UserPolicy::class,
+        \App\Models\Message::class => \App\Policies\MessagePolicy::class,
     ];
 
     /**
