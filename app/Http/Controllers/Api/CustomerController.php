@@ -220,7 +220,12 @@ class CustomerController extends Controller
 
     public function categories(): JsonResponse
     {
-        // ... (code des catégories inchangé)
+        $categories = Categorie::all();
+
+        return response()->json([
+            'message' => 'Liste des catégories récupérée avec succès',
+            'data' => $categories
+        ], 200);
     }
 
     /**
