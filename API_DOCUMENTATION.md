@@ -671,7 +671,7 @@ Permet au producteur connecté de mettre à jour un de ses produits.
         "name": "Pommes Bio Premium",
         "price": 3000,
         "quantity": 75.0
-        // Note: La gestion des images (ajout/suppression) n'est pas encore implémentée via cet endpoint.
+        
     }
     ```
 *   **Validation:**
