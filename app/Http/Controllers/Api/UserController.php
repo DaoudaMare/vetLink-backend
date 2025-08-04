@@ -23,7 +23,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        Auth::user()->can('viewAny', User::class);
+        $this->authorize('viewAny', User::class);
         $perPage = $request->query('per_page', 15);
         $users = $this->userRepository->getAll($perPage);
         return response()->json([

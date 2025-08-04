@@ -61,7 +61,38 @@ class CustomerController extends Controller
         $query = Produit::with(['categorie', 'producer', 'images'])
             ->where('quantity', '>', 0);
 
-        // ... (code de recherche inchangé)
+        // Recherche par nom ou description
+        if ($request->has('search')) {
+            $searchTerm = '%' . $request->search . '%';
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', $searchTerm)
+                  ->orWhere('description', 'like', $searchTerm);
+            });
+        }
+
+        // Filtre par catégorie
+        if ($request->has('categorie_id')) {
+            $query->where('categorie_id', $request->categorie_id);
+        }
+
+        // Filtre par prix
+        if ($request->has('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+        if ($request->has('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+
+        // Filtre par bio
+        if ($request->has('isbio')) {
+            $query->where('isbio', filter_var($request->isbio, FILTER_VALIDATE_BOOLEAN));
+        }
+
+        // Tri
+        if ($request->has('sort_by')) {
+            $sortOrder = $request->input('sort_order', 'asc');
+            $query->orderBy($request->sort_by, $sortOrder);
+        }
 
         $products = $query->paginate(15);
 
@@ -179,6 +210,8 @@ class CustomerController extends Controller
         $this->authorize('cancel', $order);
 
         $cancelledStatus = Status::where('name', 'Annulé')->first();
+        $shippedStatus = Status::where('name', 'Expédié')->first(); // Exemple
+        $deliveredStatus = Status::where('name', 'Livré')->first(); // Exemple
 
         if (!$cancelledStatus) {
             return response()->json(['message' => 'Le statut "Annulé" n\'est pas configuré.'], 500);
@@ -188,7 +221,10 @@ class CustomerController extends Controller
             return response()->json(['message' => 'Cette commande est déjà annulée.'], 409);
         }
 
-        // You might want to add more complex logic here, e.g., preventing cancellation if the order is already shipped.
+        // Empêcher l\'annulation si la commande est déjà expédiée ou livrée
+        if ($order->delivery_status >= $shippedStatus->id) { // Supposant que les statuts ont un ordre logique
+            return response()->json(['message' => 'Impossible d\'annuler une commande qui est déjà expédiée ou livrée.'], 409);
+        }
 
         DB::transaction(function () use ($order, $cancelledStatus) {
             foreach ($order->produits as $product) {

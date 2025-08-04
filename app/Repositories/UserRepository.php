@@ -24,8 +24,8 @@ class UserRepository implements UserInterface
                 'organization_type_id' => $data['organization_type_id'],
                 'business_sector_id' => $data['business_sector_id'],
                 'adresse' => $data['organization_address'],
-                'tel1' => $data['organization_tel1'], // Ajouté
-                'tel2' => $data['organization_tel2'] ?? null, // Ajouté, nullable
+                'tel1' => $data['organization_tel1'],
+                'tel2' => $data['organization_tel2'] ?? null,
             ]);
             $data['organization_id'] = $organization->id;
 
@@ -34,6 +34,8 @@ class UserRepository implements UserInterface
             unset($data['organization_type_id']);
             unset($data['business_sector_id']);
             unset($data['organization_address']);
+            unset($data['organization_tel1']);
+            unset($data['organization_tel2']);
         }
 
         // Créer et retourner l'utilisateur
