@@ -21,10 +21,13 @@ class ConversationSeeder extends Seeder
         }
 
         for ($i = 0; $i < 10; $i++) {
-            $conversationUsers = $users->random(2);
+            $userOne = $users->random();
+            $userTwo = $users->where('id', '!=', $userOne->id)->random();
 
-            $conversation = Conversation::create();
-            $conversation->users()->attach($conversationUsers);
+            Conversation::create([
+                'user_one_id' => $userOne->id,
+                'user_two_id' => $userTwo->id,
+            ]);
         }
     }
 }

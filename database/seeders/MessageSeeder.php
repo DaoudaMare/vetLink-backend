@@ -26,21 +26,28 @@ class MessageSeeder extends Seeder
             $numberOfMessages = rand(5, 15);
 
             for ($i = 0; $i < $numberOfMessages; $i++) {
+                $senderId = $faker->randomElement([$conversation->user_one_id, $conversation->user_two_id]);
+
                 $messageData = [
                     'conversation_id' => $conversation->id,
-                    'user_id' => $conversation->users->random()->id,
+                    'sender_id' => $senderId,
+                    'message' => $faker->sentence(),
+                    'is_read' => $faker->boolean(),
                 ];
 
                 // 1 in 10 chance to create an image message
                 if (rand(1, 10) === 1) {
-                    $messageData['message_type'] = 'image';
-                    $messageData['file_url'] = 'https://picsum.photos/seed/' . rand() . '/400/300';
-                    $messageData['file_name'] = 'image_' . time() . '.jpg';
+                    $messageData['attachment_type'] = 'image';
+                    $messageData['attachment_path'] = 'https://picsum.photos/seed/' . rand() . '/400/300';
                     // 50% chance to have a caption
-                    $messageData['body'] = (rand(0, 1) === 0) ? $faker->sentence(5) : null;
+                    if(rand(0, 1) === 0) {
+                         $messageData['message'] = $faker->sentence(5);
+                    } else {
+                        $messageData['message'] = 'image_' . time() . '.jpg';
+                    }
                 } else {
-                    $messageData['message_type'] = 'text';
-                    $messageData['body'] = $faker->sentence();
+                    $messageData['attachment_type'] = null;
+                    $messageData['attachment_path'] = null;
                 }
 
                 Message::create($messageData);
