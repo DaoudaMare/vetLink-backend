@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use App\Models\User;
 use App\Models\Categorie;
-use App\Models\Organisation;
+use App\Models\Organization;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -24,7 +24,7 @@ class ProduitFactory extends Factory
             'description' => $this->faker->sentence,
             'categorie_id' => Categorie::factory(),
             'producer_id' => User::factory(),
-            'organisation_id' => Organisation::factory(),
+            'organisation_id' => Organization::factory(),
             'quantity' => $this->faker->randomFloat(2, 1, 100),
             'price' => $this->faker->numberBetween(1, 1000),
             'measure' => $this->faker->randomElement(['kg', 'g', 'L', 'unité']),

@@ -18,6 +18,6 @@ class Conversation extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class)->withTimestamps()->withPivot('deleted_at');
     }
 }

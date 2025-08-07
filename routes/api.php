@@ -119,9 +119,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 });
 
 // Routes pour les commandes
-Route::prefix('commandes')->group(function () {
 
-});
 
 // Routes pour le chat
 Route::middleware('auth:sanctum')->prefix('chat')->group(function () {

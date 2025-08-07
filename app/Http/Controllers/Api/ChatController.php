@@ -54,8 +54,8 @@ class ChatController extends Controller
         ]);
 
         $messageData = [
-            'user_id' => Auth::id(),
-            'body' => $request->body,
+            'sender_id' => Auth::id(),
+            'message' => $request->body,
         ];
 
         if ($request->hasFile('file')) {
@@ -74,8 +74,8 @@ class ChatController extends Controller
 
             $path = $file->storeAs('chat_files/' . $type . 's', $newName, 'public');
 
-            $messageData['message_type'] = $type;
-            $messageData['file_url'] = $path;
+            $messageData['attachment_type'] = $type;
+            $messageData['attachment_path'] = $path;
             $messageData['file_name'] = $originalName;
         } else {
             $messageData['message_type'] = 'text';

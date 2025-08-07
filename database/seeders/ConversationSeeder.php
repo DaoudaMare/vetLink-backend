@@ -24,10 +24,8 @@ class ConversationSeeder extends Seeder
             $userOne = $users->random();
             $userTwo = $users->where('id', '!=', $userOne->id)->random();
 
-            Conversation::create([
-                'user_one_id' => $userOne->id,
-                'user_two_id' => $userTwo->id,
-            ]);
+            $conversation = Conversation::create([]);
+            $conversation->users()->attach([$userOne->id, $userTwo->id]);
         }
     }
 }

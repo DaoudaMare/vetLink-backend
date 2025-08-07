@@ -26,7 +26,11 @@ class MessageSeeder extends Seeder
             $numberOfMessages = rand(5, 15);
 
             for ($i = 0; $i < $numberOfMessages; $i++) {
-                $senderId = $faker->randomElement([$conversation->user_one_id, $conversation->user_two_id]);
+                $participants = $conversation->users->pluck('id')->toArray();
+            if (empty($participants)) {
+                continue; // Skip if no participants found for some reason
+            }
+            $senderId = $faker->randomElement($participants);
 
                 $messageData = [
                     'conversation_id' => $conversation->id,
