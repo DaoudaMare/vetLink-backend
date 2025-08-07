@@ -105,8 +105,8 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::prefix('reviews')->group(function () {
         Route::get('/products/{product}', [ReviewController::class, 'productReviews']);
         Route::post('/', [ReviewController::class, 'store']);
-        Route::put('/', [ReviewController::class, 'update']);
-        Route::delete('/', [ReviewController::class, 'destroy']);
+        Route::put('/{review}', [ReviewController::class, 'update']);
+        Route::delete('/{review}', [ReviewController::class, 'destroy']);
     });
 
 
