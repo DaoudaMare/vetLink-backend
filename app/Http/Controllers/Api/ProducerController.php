@@ -286,21 +286,38 @@ class ProducerController extends Controller
             'status' => 'required|integer|in:0,1,2,3,4', // 0: En attente, 1: Confirmé, 2: En préparation, 3: Expédié, 4: Livré
         ]);
 
-        $order->update(['status' => $request->status]);
+        $user = $request->user(); // Get the authenticated producer
 
+        // Get the IDs of products in this order that belong to the current producer
+        $producerProductIdsInOrder = $order->produits()
+                                       ->where('producer_id', $user->id)
+                                       ->pluck('produits.id')
+                                       ->toArray();
+
+        // Update the status on the pivot table for these specific products
+        $order->produits()->updateExistingPivot($producerProductIdsInOrder, ['status' => $request->status]);
+
+        // Recalculate and update the main order status based on product statuses
+        $order->recalculateOverallStatus();
+
+        // Note: The notification currently sends the overall order status.
+        // This might need to be refined to reflect product-specific status updates,
+        // or a new notification system for individual product status changes.
+        // For now, we'll keep the existing notification as is, but be aware of this.
         $this->notificationService->createNotification(
             $order->customer,
             'order_status_updated',
             [
                 'order_num' => $order->num,
-                'status' => $request->status,
+                'status' => $order->status, // CHANGED TO $order->status (calculated overall status)
             ]
         );
 
-        // Ici, vous pourriez vouloir déclencher des notifications pour le client.
+        // Reload the order to get the updated pivot data for the response
+        $order->load('produits');
 
         return response()->json([
-            'message' => 'Statut de la commande mis à jour avec succès',
+            'message' => 'Statut des produits du producteur mis à jour avec succès dans la commande',
             'data' => new CommandeResource($order)
         ], 200);
     }

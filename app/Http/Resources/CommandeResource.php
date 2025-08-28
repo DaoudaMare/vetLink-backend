@@ -25,6 +25,8 @@ class CommandeResource extends JsonResource
                         'name' => $produit->name,
                         'price' => $produit->price,
                         'quantity' => $produit->pivot->quantity,
+                        'status' => $produit->pivot->status, // ADDED
+                        'status_label' => $this->getProductStatusLabel($produit->pivot->status), // ADDED
                         'subtotal' => $produit->price * $produit->pivot->quantity,
                         'image' => $produit->images->first()?->image_url ?? null,
                         'category' => $produit->categorie?->name,
@@ -67,6 +69,18 @@ class CommandeResource extends JsonResource
             1 => 'En cours de livraison',
             2 => 'Livrée',
             3 => 'Échec de livraison',
+            default => 'Inconnu'
+        };
+    }
+    
+    private function getProductStatusLabel(int $status): string
+    {
+        return match($status) {
+            0 => 'En attente',
+            1 => 'Confirmé',
+            2 => 'En préparation',
+            3 => 'Expédié',
+            4 => 'Livré',
             default => 'Inconnu'
         };
     }
