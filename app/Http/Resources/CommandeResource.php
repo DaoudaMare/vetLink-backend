@@ -18,15 +18,23 @@ class CommandeResource extends JsonResource
             'id' => $this->id,
             'num' => $this->num,
             'customer' => new UserResource($this->whenLoaded('customer')),
-            'products' => $this->whenLoaded('produits', function() {
-                return $this->produits->map(function($produit) {
+            'products' => $this->whenLoaded('produits', function() use ($request) {
+                $user = $request->user();
+                $filteredProduits = $this->produits;
+
+                // If the user is a producer, filter to show only their products
+                if ($user && $user->isProducer()) {
+                    $filteredProduits = $this->produits->filter(fn($produit) => $produit->producer_id === $user->id);
+                }
+
+                return $filteredProduits->map(function($produit) {
                     return [
                         'id' => $produit->id,
                         'name' => $produit->name,
                         'price' => $produit->price,
                         'quantity' => $produit->pivot->quantity,
-                        'status' => $produit->pivot->status, // ADDED
-                        'status_label' => $this->getProductStatusLabel($produit->pivot->status), // ADDED
+                        'status' => $produit->pivot->status,
+                        'status_label' => $this->getProductStatusLabel($produit->pivot->status),
                         'subtotal' => $produit->price * $produit->pivot->quantity,
                         'image' => $produit->images->first()?->image_url ?? null,
                         'category' => $produit->categorie?->name,
