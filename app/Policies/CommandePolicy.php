@@ -18,11 +18,20 @@ class CommandePolicy
 
     /**
      * Un utilisateur peut voir une commande si il est le client,
-     * le producteur du produit commandé, ou un admin.
+     * un producteur concerné par la commande, ou un admin.
      */
     public function view(User $user, Commande $commande): bool
     {
-        return $user->id === $commande->customer_id || ($commande->produit && $user->id === $commande->produit->producer_id) || $user->isAdmin();
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        if ($user->id === $commande->customer_id) {
+            return true;
+        }
+
+        // Vérifie si au moins un des produits de la commande appartient au producteur.
+        return $commande->produits()->where('producer_id', $user->id)->exists();
     }
 
     /**
@@ -34,11 +43,16 @@ class CommandePolicy
     }
 
     /**
-     * Un producteur peut mettre à jour le statut d'une commande de son produit.
+     * Un producteur peut mettre à jour le statut d'une commande qui contient un de ses produits.
      */
     public function updateStatus(User $user, Commande $commande): bool
     {
-        return ($commande->produit && $user->id === $commande->produit->producer_id) || $user->isAdmin();
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        // Vérifie si au moins un des produits de la commande appartient au producteur.
+        return $commande->produits()->where('producer_id', $user->id)->exists();
     }
 
     /**
