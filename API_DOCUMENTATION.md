@@ -1241,36 +1241,42 @@ Récupère une liste paginée des messages d'une conversation spécifique.
 *   **Réponse (Succès - 200 OK):}
     ```json
     {
-        "current_page": 1,
+        "message": "Messages récupérés avec succès",
         "data": [
             {
                 "id": 1,
+                "content": "Bonjour, vos tomates sont-elles disponibles ?",
+                "user": { "id": 1, "firstName": "John" },
                 "conversation_id": 1,
-                "user_id": 1,
-                "body": "Bonjour, vos tomates sont-elles disponibles ?",
-                "message_type": "text",
-                "file_url": null,
-                "file_name": null,
+                "attachment": null,
                 "read_at": null,
+                "is_read": false,
                 "created_at": "...",
-                "updated_at": "...",
-                "user": { "id": 1, "firstName": "John" }
+                "updated_at": "..."
             },
             {
                 "id": 2,
+                "content": "Voici une photo de nos tomates.",
+                "user": { "id": 2, "firstName": "Jane" },
                 "conversation_id": 1,
-                "user_id": 2,
-                "body": "Voici une photo de nos tomates.", // Optionnel
-                "message_type": "image",
-                "file_url": "chat_files/images/1678886400.jpg",
-                "file_name": "tomates.jpg",
+                "attachment": {
+                    "filename": "tomates.jpg",
+                    "path": "chat_files/images/1678886400.jpg",
+                    "type": "image",
+                    "download_url": "http://your-app.com/api/chat/download/2"
+                },
                 "read_at": null,
+                "is_read": false,
                 "created_at": "...",
-                "updated_at": "...",
-                "user": { "id": 2, "firstName": "Jane" }
+                "updated_at": "..."
             }
         ],
-        // ... métadonnées de pagination
+        "pagination": {
+            "current_page": 1,
+            "last_page": 1,
+            "per_page": 15,
+            "total": 2
+        }
     }
     ```
 *   **Réponse (Échec - 403 Forbidden):}
@@ -1316,11 +1322,11 @@ Permet d'envoyer un message (texte, image, vidéo, document) dans une conversati
     {
         "id": 1,
         "conversation_id": 1,
-        "user_id": 1,
-        "body": "Votre message ou légende",
-        "message_type": "text" | "image" | "video" | "document",
-        "file_url": "chat_files/images/image.jpg" | "chat_files/videos/video.mp4" | "chat_files/documents/doc.pdf", // null si message_type est "text"
-        "file_name": "nom_du_fichier.ext", // null si message_type est "text"
+        "sender_id": 1,
+        "message": "Votre message ou légende",
+        "attachment_type": "image",
+        "attachment_path": "chat_files/images/1678886400.jpg",
+        "file_name": "image.jpg",
         "read_at": null,
         "created_at": "...",
         "updated_at": "...",

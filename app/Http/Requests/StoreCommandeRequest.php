@@ -23,8 +23,9 @@ class StoreCommandeRequest extends FormRequest
     {
         return [
             'customer_id' => 'required|exists:users,id',
-            'product_id' => 'required|exists:produits,id',
-            'Quantity' => 'required|integer|min:1',
+            'produits' => 'required|array|min:1',
+            'produits.*.product_id' => 'required|exists:produits,id',
+            'produits.*.quantity' => 'required|integer|min:1',
         ];
     }
 
@@ -34,12 +35,16 @@ class StoreCommandeRequest extends FormRequest
             'customer_id.required' => 'L\'identifiant du client est obligatoire.',
             'customer_id.exists' => 'Le client sélectionné n\'existe pas.',
             
-            'product_id.required' => 'L\'identifiant du produit est obligatoire.',
-            'product_id.exists' => 'Le produit sélectionné n\'existe pas.',
+            'produits.required' => 'Au moins un produit est requis.',
+            'produits.array' => 'Les produits doivent être fournis sous forme de tableau.',
+            'produits.min' => 'Au moins un produit doit être commandé.',
             
-            'Quantity.required' => 'La quantité est obligatoire.',
-            'Quantity.integer' => 'La quantité doit être un nombre entier.',
-            'Quantity.min' => 'La quantité doit être supérieure à 0.',
+            'produits.*.product_id.required' => 'L\'identifiant du produit est obligatoire.',
+            'produits.*.product_id.exists' => 'Un des produits sélectionnés n\'existe pas.',
+            
+            'produits.*.quantity.required' => 'La quantité est obligatoire pour chaque produit.',
+            'produits.*.quantity.integer' => 'La quantité doit être un nombre entier.',
+            'produits.*.quantity.min' => 'La quantité doit être supérieure à 0.',
         ];
     }
 }

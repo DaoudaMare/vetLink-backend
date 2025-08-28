@@ -51,6 +51,14 @@ class Produit extends Model
         return $this->hasMany(ProductImage::class, 'product_id');
     }
 
+    /**
+     * Get the reviews for the product.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
     public function commandes()
     {
         return $this->belongsToMany(Commande::class, 'commande_produit')

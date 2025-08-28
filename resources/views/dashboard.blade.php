@@ -1,57 +1,139 @@
 @extends('layouts.app')
 
 @section('pagetitle')
-<h1>Tableau de Bord</h1>
+<h1>Tableau de Bord VetLink</h1>
 <nav>
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="./index.html">Tableau de Bord</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Admin</a></li>
     <li class="breadcrumb-item active">Tableau de Bord</li>
   </ol>
 </nav>
 @endsection
 
 @section('content')
-<div class="row">
+<!-- Alertes Système -->
+<div id="alerts-container" class="mb-4"></div>
 
-  <!-- Colonne de Gauche -->
+<div class="row">
+  <!-- Statistiques Principales -->
   <div class="col-lg-8">
     <div class="row">
 
-      <!-- Carte : Utilisateurs Vérifiés -->
+      <!-- Carte : Total Utilisateurs -->
       <div class="col-xxl-4 col-md-6">
         <div class="card info-card sales-card">
           <div class="card-body">
-            <h5 class="card-title">Utilisateurs Vérifiés <span>| Ce Mois</span></h5>
+            <h5 class="card-title">Total Utilisateurs</h5>
             <div class="d-flex align-items-center">
               <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                <i class="bi bi-person-check"></i>
+                <i class="bi bi-people"></i>
               </div>
               <div class="ps-3">
-                <h6>245</h6>
-                <span class="text-success small pt-1 fw-bold">8%</span> <span class="text-muted small pt-2 ps-1">augmentation</span>
+                <h6 id="total-users">{{ number_format($stats['total_users']) }}</h6>
+                <small class="text-muted">Inscrits sur la plateforme</small>
               </div>
             </div>
           </div>
         </div>
-      </div><!-- Fin Carte Utilisateurs Vérifiés -->
+      </div>
 
-      <!-- Carte : Transactions Réussies -->
+      <!-- Carte : Total Produits -->
       <div class="col-xxl-4 col-md-6">
         <div class="card info-card revenue-card">
           <div class="card-body">
-            <h5 class="card-title">Transactions Réussies <span>| Ce Mois</span></h5>
+            <h5 class="card-title">Total Produits</h5>
             <div class="d-flex align-items-center">
               <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                <i class="bi bi-currency-dollar"></i>
+                <i class="bi bi-box"></i>
               </div>
               <div class="ps-3">
-                <h6>$12,450</h6>
-                <span class="text-success small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">augmentation</span>
+                <h6>{{ number_format($stats['total_products']) }}</h6>
+                @if($stats['pending_products'] > 0)
+                  <span class="text-warning small">{{ $stats['pending_products'] }} en attente</span>
+                @else
+                  <small class="text-muted">Tous validés</small>
+                @endif
               </div>
             </div>
           </div>
         </div>
-      </div><!-- Fin Carte Transactions Réussies -->
+      </div>
+
+      <!-- Carte : Total Commandes -->
+      <div class="col-xxl-4 col-md-6">
+        <div class="card info-card customers-card">
+          <div class="card-body">
+            <h5 class="card-title">Total Commandes</h5>
+            <div class="d-flex align-items-center">
+              <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-cart"></i>
+              </div>
+              <div class="ps-3">
+                <h6>{{ number_format($stats['total_orders']) }}</h6>
+                @if($stats['pending_orders'] > 0)
+                  <span class="text-danger small">{{ $stats['pending_orders'] }} en attente</span>
+                @else
+                  <small class="text-muted">Toutes traitées</small>
+                @endif
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte : Chiffre d'Affaires -->
+      <div class="col-xxl-4 col-md-6">
+        <div class="card info-card revenue-card">
+          <div class="card-body">
+            <h5 class="card-title">Chiffre d'Affaires</h5>
+            <div class="d-flex align-items-center">
+              <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-currency-euro"></i>
+              </div>
+              <div class="ps-3">
+                <h6>{{ number_format($stats['total_revenue'], 0, ',', ' ') }} €</h6>
+                <small class="text-muted">Total des ventes</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte : Évaluations -->
+      <div class="col-xxl-4 col-md-6">
+        <div class="card info-card">
+          <div class="card-body">
+            <h5 class="card-title">Évaluations</h5>
+            <div class="d-flex align-items-center">
+              <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-star"></i>
+              </div>
+              <div class="ps-3">
+                <h6>{{ number_format($stats['total_reviews']) }}</h6>
+                <small class="text-muted">Avis clients</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte : Conversations Actives -->
+      <div class="col-xxl-4 col-md-6">
+        <div class="card info-card">
+          <div class="card-body">
+            <h5 class="card-title">Chat Actif</h5>
+            <div class="d-flex align-items-center">
+              <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-chat-dots"></i>
+              </div>
+              <div class="ps-3">
+                <h6>{{ number_format($stats['active_conversations']) }}</h6>
+                <small class="text-muted">Conversations cette semaine</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Carte : Produits Certifiés -->
       <div class="col-xxl-4 col-xl-12">
@@ -71,277 +153,190 @@
         </div>
       </div><!-- Fin Carte Produits Certifiés -->
 
-      <!-- Rapports -->
+      <!-- Graphique des Ventes Mensuelles -->
       <div class="col-12">
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">Rapports <span>| Cette Année</span></h5>
-            <!-- Graphique en Ligne -->
-            <div id="reportsChart"></div>
-            <script>
-              document.addEventListener("DOMContentLoaded", () => {
-                new ApexCharts(document.querySelector("#reportsChart"), {
-                  series: [{
-                    name: 'Utilisateurs Vérifiés',
-                    data: [31, 40, 28, 51, 42, 82, 56],
-                  }, {
-                    name: 'Transactions Réussies',
-                    data: [11, 32, 45, 32, 34, 52, 41]
-                  }, {
-                    name: 'Produits Certifiés',
-                    data: [15, 11, 32, 18, 9, 24, 11]
-                  }],
-                  chart: {
-                    height: 350,
-                    type: 'area',
-                    toolbar: {
-                      show: false
-                    },
-                  },
-                  markers: {
-                    size: 4
-                  },
-                  colors: ['#4154f1', '#2eca6a', '#ff771d'],
-                  fill: {
-                    type: "gradient",
-                    gradient: {
-                      shadeIntensity: 1,
-                      opacityFrom: 0.3,
-                      opacityTo: 0.4,
-                      stops: [0, 90, 100]
-                    }
-                  },
-                  dataLabels: {
-                    enabled: false
-                  },
-                  stroke: {
-                    curve: 'smooth',
-                    width: 2
-                  },
-                  xaxis: {
-                    type: 'datetime',
-                    categories: ["2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01"]
-                  },
-                  tooltip: {
-                    x: {
-                      format: 'dd/MM/yy'
-                    },
-                  }
-                }).render();
-              });
-            </script>
-            <!-- Fin Graphique en Ligne -->
+            <h5 class="card-title">Évolution Mensuelle</h5>
+            <canvas id="monthlyChart" style="max-height: 400px;"></canvas>
           </div>
         </div>
-      </div><!-- Fin Rapports -->
-
-      <!-- Transactions Récentes -->
-      <div class="col-12">
-        <div class="card recent-sales overflow-auto">
-          <div class="filter">
-            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-              <li class="dropdown-header text-start">
-                <h6>Filtrer</h6>
-              </li>
-              <li><a class="dropdown-item" href="#">Aujourd'hui</a></li>
-              <li><a class="dropdown-item" href="#">Ce Mois</a></li>
-              <li><a class="dropdown-item" href="#">Cette Année</a></li>
-            </ul>
-          </div>
-          <div class="card-body">
-            <h5 class="card-title">Transactions Récentes <span>| Aujourd'hui</span></h5>
-            <table class="table table-borderless datatable">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Acheteur</th>
-                  <th scope="col">Produit</th>
-                  <th scope="col">Montant</th>
-                  <th scope="col">Statut</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th scope="row"><a href="#">#2457</a></th>
-                  <td>Brandon Jacob</td>
-                  <td><a href="#" class="text-primary">Produit Agricole A</a></td>
-                  <td>$64</td>
-                  <td><span class="badge bg-success">Approuvé</span></td>
-                </tr>
-                <tr>
-                  <th scope="row"><a href="#">#2147</a></th>
-                  <td>Bridie Kessler</td>
-                  <td><a href="#" class="text-primary">Produit Agricole B</a></td>
-                  <td>$47</td>
-                  <td><span class="badge bg-warning">En Attente</span></td>
-                </tr>
-                <tr>
-                  <th scope="row"><a href="#">#2049</a></th>
-                  <td>Ashleigh Langosh</td>
-                  <td><a href="#" class="text-primary">Produit Agricole C</a></td>
-                  <td>$147</td>
-                  <td><span class="badge bg-success">Approuvé</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div><!-- Fin Transactions Récentes -->
-
-      <!-- Produits les Plus Vendus -->
-      <div class="col-12">
-        <div class="card top-selling overflow-auto">
-          <div class="filter">
-            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-              <li class="dropdown-header text-start">
-                <h6>Filtrer</h6>
-              </li>
-              <li><a class="dropdown-item" href="#">Aujourd'hui</a></li>
-              <li><a class="dropdown-item" href="#">Ce Mois</a></li>
-              <li><a class="dropdown-item" href="#">Cette Année</a></li>
-            </ul>
-          </div>
-          <div class="card-body pb-0">
-            <h5 class="card-title">Produits les Plus Vendus <span>| Aujourd'hui</span></h5>
-            <table class="table table-borderless">
-              <thead>
-                <tr>
-                  <th scope="col">Image</th>
-                  <th scope="col">Produit</th>
-                  <th scope="col">Prix</th>
-                  <th scope="col">Vendus</th>
-                  <th scope="col">Revenu</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th scope="row"><a href="#"><img src="{{asset('assets/img/product-1.jpg')}}" alt="Produit 1"></a></th>
-                  <td><a href="#" class="text-primary fw-bold">Produit Agricole A</a></td>
-                  <td>$64</td>
-                  <td class="fw-bold">124</td>
-                  <td>$5,828</td>
-                </tr>
-                <tr>
-                  <th scope="row"><a href="#"><img src="{{asset('assets/img/product-2.jpg')}}" alt="Produit 2"></a></th>
-                  <td><a href="#" class="text-primary fw-bold">Produit Agricole B</a></td>
-                  <td>$46</td>
-                  <td class="fw-bold">98</td>
-                  <td>$4,508</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div><!-- Fin Produits les Plus Vendus -->
 
     </div>
-  </div><!-- Fin Colonne de Gauche -->
+  </div>
 
   <!-- Colonne de Droite -->
   <div class="col-lg-4">
-
-    <!-- Activité Récente -->
+    
+    <!-- Actions Rapides -->
     <div class="card">
-      <div class="filter">
-        <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-          <li class="dropdown-header text-start">
-            <h6>Filtrer</h6>
-          </li>
-          <li><a class="dropdown-item" href="#">Aujourd'hui</a></li>
-          <li><a class="dropdown-item" href="#">Ce Mois</a></li>
-          <li><a class="dropdown-item" href="#">Cette Année</a></li>
-        </ul>
-      </div>
       <div class="card-body">
-        <h5 class="card-title">Activité Récente <span>| Aujourd'hui</span></h5>
-        <div class="activity">
-          <div class="activity-item d-flex">
-            <div class="activite-label">32 min</div>
-            <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
-            <div class="activity-content">
-              Nouveau profil vérifié : <a href="#" class="fw-bold text-dark">John Doe</a>
-            </div>
-          </div><!-- Fin Activité Item -->
-          <div class="activity-item d-flex">
-            <div class="activite-label">1 heure</div>
-            <i class='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
-            <div class="activity-content">
-              Litige signalé sur la transaction #2457
-            </div>
-          </div><!-- Fin Activité Item -->
+        <h5 class="card-title">Actions Rapides</h5>
+        <div class="d-grid gap-2">
+          <a href="{{ route('admin.users.index') }}" class="btn btn-primary">
+            <i class="bi bi-people"></i> Gérer Utilisateurs
+          </a>
+          <a href="{{ route('admin.products.pending') }}" class="btn btn-warning">
+            <i class="bi bi-box"></i> Produits en Attente ({{ $stats['pending_products'] }})
+          </a>
+          <a href="{{ route('admin.orders.pending') }}" class="btn btn-danger">
+            <i class="bi bi-cart"></i> Commandes en Attente ({{ $stats['pending_orders'] }})
+          </a>
+          <a href="{{ route('admin.chat.index') }}" class="btn btn-info">
+            <i class="bi bi-chat-dots"></i> Modération Chat
+          </a>
         </div>
       </div>
-    </div><!-- Fin Activité Récente -->
+    </div>
 
-    <!-- Rapport de Traçabilité -->
+    <!-- Nouveaux Utilisateurs -->
     <div class="card">
-      <div class="filter">
-        <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-          <li class="dropdown-header text-start">
-            <h6>Filtrer</h6>
-          </li>
-          <li><a class="dropdown-item" href="#">Aujourd'hui</a></li>
-          <li><a class="dropdown-item" href="#">Ce Mois</a></li>
-          <li><a class="dropdown-item" href="#">Cette Année</a></li>
-        </ul>
+      <div class="card-body">
+        <h5 class="card-title">Nouveaux Utilisateurs <span class="badge bg-primary">{{ $newUsers->count() }}</span></h5>
+        <div class="activity">
+          @forelse($newUsers as $user)
+          <div class="activity-item d-flex">
+            <div class="activite-label">{{ $user->created_at->diffForHumans() }}</div>
+            <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
+            <div class="activity-content">
+              <strong>{{ $user->firstName }} {{ $user->lastName }}</strong><br>
+              <small class="text-muted">{{ $user->userType->title ?? 'N/A' }} - {{ $user->email }}</small>
+            </div>
+          </div>
+          @empty
+          <p class="text-muted">Aucun nouvel utilisateur cette semaine</p>
+          @endforelse
+        </div>
       </div>
-      <div class="card-body pb-0">
-        <h5 class="card-title">Rapport de Traçabilité <span>| Ce Mois</span></h5>
-        <div id="traceabilityChart" style="min-height: 400px;" class="echart"></div>
-        <script>
-          document.addEventListener("DOMContentLoaded", () => {
-            echarts.init(document.querySelector("#traceabilityChart")).setOption({
-              tooltip: {
-                trigger: 'item'
-              },
-              legend: {
-                top: '5%',
-                left: 'center'
-              },
-              series: [{
-                name: 'Traçabilité',
-                type: 'pie',
-                radius: ['40%', '70%'],
-                avoidLabelOverlap: false,
-                label: {
-                  show: false,
-                  position: 'center'
-                },
-                emphasis: {
-                  label: {
-                    show: true,
-                    fontSize: '18',
-                    fontWeight: 'bold'
-                  }
-                },
-                labelLine: {
-                  show: false
-                },
-                data: [{
-                  value: 1048,
-                  name: 'Produits Certifiés'
-                },
-                {
-                  value: 735,
-                  name: 'Produits en Attente'
-                },
-                {
-                  value: 580,
-                  name: 'Produits Non Certifiés'
-                }
-                ]
-              }]
-            });
-          });
-        </script>
-      </div>
-    </div><!-- Fin Rapport de Traçabilité -->
+    </div>
 
-  </div><!-- Fin Colonne de Droite -->
+    <!-- Commandes Récentes -->
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Commandes Récentes</h5>
+        <div class="activity">
+          @forelse($recentOrders as $order)
+          <div class="activity-item d-flex">
+            <div class="activite-label">{{ $order->created_at->diffForHumans() }}</div>
+            <i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
+            <div class="activity-content">
+              <strong>{{ $order->num }}</strong><br>
+              <small class="text-muted">
+                {{ $order->customer->firstName }} {{ $order->customer->lastName }} - 
+                {{ number_format($order->total_price) }} €
+              </small>
+            </div>
+          </div>
+          @empty
+          <p class="text-muted">Aucune commande récente</p>
+          @endforelse
+        </div>
+      </div>
+    </div>
+
+    <!-- Produits en Attente -->
+    @if($pendingProducts->count() > 0)
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Produits à Valider <span class="badge bg-warning">{{ $pendingProducts->count() }}</span></h5>
+        <div class="activity">
+          @foreach($pendingProducts as $product)
+          <div class="activity-item d-flex">
+            <div class="activite-label">{{ $product->created_at->diffForHumans() }}</div>
+            <i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
+            <div class="activity-content">
+              <strong>{{ $product->name }}</strong><br>
+              <small class="text-muted">Par {{ $product->producer->firstName }} {{ $product->producer->lastName }}</small>
+              <div class="mt-1">
+                <a href="{{ route('admin.products.show', $product) }}" class="btn btn-sm btn-outline-primary">Voir</a>
+              </div>
+            </div>
+          </div>
+          @endforeach
+        </div>
+      </div>
+    </div>
+    @endif
+
+  </div>
 
 </div>
+
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Graphique mensuel
+const monthlyData = @json($monthlyStats);
+const ctx = document.getElementById('monthlyChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: monthlyData.map(item => item.month),
+        datasets: [{
+            label: 'Utilisateurs',
+            data: monthlyData.map(item => item.users),
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+        }, {
+            label: 'Commandes',
+            data: monthlyData.map(item => item.orders),
+            borderColor: 'rgb(255, 99, 132)',
+            tension: 0.1
+        }, {
+            label: 'Produits',
+            data: monthlyData.map(item => item.products),
+            borderColor: 'rgb(255, 205, 86)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Mise à jour des stats en temps réel
+function updateLiveStats() {
+    fetch('{{ route("admin.dashboard.live-stats") }}')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('total-users').textContent = data.today_users;
+            // Mettre à jour d'autres éléments si nécessaire
+        })
+        .catch(error => console.error('Erreur:', error));
+}
+
+// Charger les alertes
+function loadAlerts() {
+    fetch('{{ route("admin.dashboard.alerts") }}')
+        .then(response => response.json())
+        .then(alerts => {
+            const container = document.getElementById('alerts-container');
+            container.innerHTML = '';
+            alerts.forEach(alert => {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${alert.type} alert-dismissible fade show`;
+                alertDiv.innerHTML = `
+                    ${alert.message}
+                    ${alert.action ? `<a href="${alert.action}" class="alert-link ms-2">Voir</a>` : ''}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                container.appendChild(alertDiv);
+            });
+        });
+}
+
+// Actualiser toutes les 30 secondes
+setInterval(updateLiveStats, 30000);
+setInterval(loadAlerts, 60000);
+
+// Charger au démarrage
+loadAlerts();
+</script>
+@endpush

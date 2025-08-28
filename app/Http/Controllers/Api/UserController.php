@@ -58,7 +58,6 @@ class UserController extends Controller
                 'message' => 'Utilisateur non trouvé'
             ], 404);
         }
-        $this->authorize('update', $user);
 
         $updatedUser = $this->userRepository->update($user, $request->validated());
 

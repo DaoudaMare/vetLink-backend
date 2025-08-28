@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('product_id')->constrained('produits')->cascadeOnDelete();
+            $table->foreignId('produit_id')->constrained('produits')->cascadeOnDelete();
             $table->integer('rating')->comment('Note de 1 à 5');
             $table->text('comment')->nullable();
             $table->timestamps();
-            $table->unique(['user_id', 'product_id']); // Un utilisateur ne peut noter un produit qu'une seule fois
+            $table->unique(['user_id', 'produit_id']); // Un utilisateur ne peut noter un produit qu'une seule fois
         });
     }
 

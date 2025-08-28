@@ -24,21 +24,21 @@ class ReviewSeeder extends Seeder
 
         Review::create([
             'user_id' => $users->random()->id,
-            'product_id' => $produits->random()->id, // Corrected from 'produit_id' to 'product_id'
+            'produit_id' => $produits->random()->id, // Corrected from 'product_id' to 'produit_id'
             'rating' => 5,
             'comment' => 'Excellent product, highly recommended!',
         ]);
 
         Review::create([
             'user_id' => $users->random()->id,
-            'product_id' => $produits->random()->id, // Corrected from 'produit_id' to 'product_id'
+            'produit_id' => $produits->random()->id, // Corrected from 'product_id' to 'produit_id'
             'rating' => 3,
             'comment' => 'Good product, but delivery was slow.',
         ]);
 
         Review::create([
             'user_id' => $users->random()->id,
-            'product_id' => $produits->random()->id, // Corrected from 'produit_id' to 'product_id'
+            'produit_id' => $produits->random()->id, // Corrected from 'product_id' to 'produit_id'
             'rating' => 4,
             'comment' => 'Very satisfied with the quality.',
         ]);

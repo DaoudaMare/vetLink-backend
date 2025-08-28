@@ -7,9 +7,11 @@ use App\Models\User;
 use App\Models\Produit;
 use App\Models\Commande;
 use App\Models\Review;
+use App\Http\Resources\ReviewResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ReviewController extends Controller
 {
@@ -18,12 +20,36 @@ class ReviewController extends Controller
      */
     public function productReviews(Produit $product): JsonResponse
     {
-        $reviews = $product->reviews()->with('user')->get();
+        try {
+            $reviews = $product->reviews()->with('user')->latest()->get();
+            
+            // Calculer la moyenne des notes
+            $averageRating = $reviews->avg('rating');
+            $totalReviews = $reviews->count();
 
-        return response()->json([
-            'message' => 'Évaluations récupérées avec succès',
-            'data' => $reviews
-        ], 200);
+            return response()->json([
+                'message' => 'Évaluations récupérées avec succès',
+                'data' => [
+                    'reviews' => ReviewResource::collection($reviews),
+                    'statistics' => [
+                        'average_rating' => round($averageRating, 1),
+                        'total_reviews' => $totalReviews,
+                        'rating_distribution' => [
+                            '5' => $reviews->where('rating', 5)->count(),
+                            '4' => $reviews->where('rating', 4)->count(),
+                            '3' => $reviews->where('rating', 3)->count(),
+                            '2' => $reviews->where('rating', 2)->count(),
+                            '1' => $reviews->where('rating', 1)->count(),
+                        ]
+                    ]
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de la récupération des évaluations',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -34,7 +60,7 @@ class ReviewController extends Controller
         $this->authorize('create', Review::class);
 
         $request->validate([
-            'product_id' => 'required|exists:produits,id',
+            'produit_id' => 'required|exists:produits,id',
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'nullable|string|max:500'
         ]);
@@ -44,7 +70,7 @@ class ReviewController extends Controller
         // Vérifier que l'utilisateur a acheté ce produit
         $hasOrdered = Commande::where('customer_id', $user->id)
             ->whereHas('produits', function ($query) use ($request) {
-                $query->where('produits.id', $request->product_id);
+                $query->where('produits.id', $request->produit_id);
             })
             ->whereIn('status', [2, 3, 4]) // Commandes validées, expédiées ou livrées
             ->exists();
@@ -57,7 +83,7 @@ class ReviewController extends Controller
 
         // Vérifier si l'utilisateur a déjà noté ce produit
         $existingReview = Review::where('user_id', $user->id)
-                                ->where('product_id', $request->product_id)
+                                ->where('produit_id', $request->produit_id)
                                 ->first();
 
         if ($existingReview) {
@@ -66,17 +92,24 @@ class ReviewController extends Controller
             ], 409); // 409 Conflict
         }
 
-        $review = Review::create([
-            'user_id' => $user->id,
-            'product_id' => $request->product_id,
-            'rating' => $request->rating,
-            'comment' => $request->comment,
-        ]);
+        try {
+            $review = Review::create([
+                'user_id' => $user->id,
+                'produit_id' => $request->produit_id,
+                'rating' => $request->rating,
+                'comment' => $request->comment,
+            ]);
 
-        return response()->json([
-            'message' => 'Évaluation ajoutée avec succès',
-            'data' => $review
-        ], 201);
+            return response()->json([
+                'message' => 'Évaluation ajoutée avec succès',
+                'data' => new ReviewResource($review->load('user'))
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de l\'ajout de l\'évaluation',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -91,15 +124,22 @@ class ReviewController extends Controller
             'comment' => 'nullable|string|max:500'
         ]);
 
-        $review->update([
-            'rating' => $request->rating,
-            'comment' => $request->comment,
-        ]);
+        try {
+            $review->update([
+                'rating' => $request->rating,
+                'comment' => $request->comment,
+            ]);
 
-        return response()->json([
-            'message' => 'Évaluation mise à jour avec succès',
-            'data' => $review
-        ], 200);
+            return response()->json([
+                'message' => 'Évaluation mise à jour avec succès',
+                'data' => new ReviewResource($review->load('user'))
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de la mise à jour de l\'évaluation',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -109,11 +149,18 @@ class ReviewController extends Controller
     {
         $this->authorize('delete', $review);
 
-        $review->delete();
+        try {
+            $review->delete();
 
-        return response()->json([
-            'message' => 'Évaluation supprimée avec succès'
-        ], 200);
+            return response()->json([
+                'message' => 'Évaluation supprimée avec succès'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de la suppression de l\'évaluation',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
  

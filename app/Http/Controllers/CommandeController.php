@@ -11,6 +11,7 @@ use App\Http\Resources\CommandeCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class CommandeController extends Controller
 {
@@ -19,7 +20,7 @@ class CommandeController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Commande::with(['customer', 'produit']);
+        $query = Commande::with(['customer', 'produits']);
 
         // Filtres
         if ($request->has('customer_id')) {
@@ -43,46 +44,74 @@ class CommandeController extends Controller
     }
 
     /**
-     * Enregistrer une nouvelle commande
+     * Enregistrer une nouvelle commande multi-produits
      */
     public function store(StoreCommandeRequest $request): JsonResponse
     {
         $data = $request->validated();
         
-        // Générer un numéro unique pour la commande
-        $data['num'] = 'CMD-' . strtoupper(Str::random(8));
-        
-        // Récupérer le produit et vérifier la disponibilité
-        $produit = Produit::findOrFail($data['product_id']);
-        
-        // Vérifier si la quantité demandée est disponible
-        if ($produit->quantity < $data['Quantity']) {
+        try {
+            DB::beginTransaction();
+            
+            // Générer un numéro unique pour la commande
+            $commandeData = [
+                'num' => 'CMD-' . strtoupper(Str::random(8)),
+                'customer_id' => $data['customer_id'],
+                'status' => 0, // En attente
+                'delivery_status' => 0, // Non livré
+                'payment' => 0, // Non payé
+                'total_price' => 0 // Sera calculé
+            ];
+            
+            // Créer la commande
+            $commande = Commande::create($commandeData);
+            
+            $totalPrice = 0;
+            
+            // Traiter chaque produit
+            foreach ($data['produits'] as $produitData) {
+                $produit = Produit::findOrFail($produitData['product_id']);
+                
+                // Vérifier la disponibilité
+                if ($produit->quantity < $produitData['quantity']) {
+                    DB::rollBack();
+                    return response()->json([
+                        'message' => "Quantité insuffisante pour le produit '{$produit->name}'",
+                        'product_name' => $produit->name,
+                        'available_quantity' => $produit->quantity,
+                        'requested_quantity' => $produitData['quantity']
+                    ], 422);
+                }
+                
+                // Attacher le produit à la commande
+                $commande->produits()->attach($produit->id, [
+                    'quantity' => $produitData['quantity']
+                ]);
+                
+                // Réduire le stock
+                $produit->decrement('quantity', $produitData['quantity']);
+                
+                // Calculer le prix total
+                $totalPrice += $produit->price * $produitData['quantity'];
+            }
+            
+            // Mettre à jour le prix total
+            $commande->update(['total_price' => $totalPrice]);
+            
+            DB::commit();
+            
             return response()->json([
-                'message' => 'Quantité insuffisante en stock',
-                'available_quantity' => $produit->quantity
-            ], 422);
+                'message' => 'Commande créée avec succès',
+                'data' => new CommandeResource($commande->load(['customer', 'produits']))
+            ], 201);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Erreur lors de la création de la commande',
+                'error' => $e->getMessage()
+            ], 500);
         }
-        
-        // Calculer le prix total
-        $data['total_price'] = $produit->price * $data['Quantity'];
-        
-        // Définir les statuts par défaut
-        $data['status'] = 0; // En attente
-        $data['delivery_status'] = 0; // Non livré
-        $data['payment'] = 0; // Non payé
-
-        // Créer la commande
-        $commande = Commande::create($data);
-
-        // Réduire la quantité du produit
-        $produit->update([
-            'quantity' => $produit->quantity - $data['Quantity']
-        ]);
-
-        return response()->json([
-            'message' => 'Commande créée avec succès',
-            'data' => new CommandeResource($commande->load(['customer', 'produit']))
-        ], 201);
     }
 
     /**
@@ -92,67 +121,68 @@ class CommandeController extends Controller
     {
         return response()->json([
             'message' => 'Commande récupérée avec succès',
-            'data' => new CommandeResource($commande->load(['customer', 'produit']))
+            'data' => new CommandeResource($commande->load(['customer', 'produits']))
         ], 200);
     }
 
     /**
-     * Mettre à jour une commande
+     * Mettre à jour une commande (statuts uniquement)
      */
     public function update(UpdateCommandeRequest $request, Commande $commande): JsonResponse
     {
         $data = $request->validated();
+        
+        try {
+            // Seuls les statuts peuvent être modifiés après création
+            $allowedFields = ['status', 'delivery_status', 'payment'];
+            $updateData = array_intersect_key($data, array_flip($allowedFields));
+            
+            $commande->update($updateData);
 
-        // Si la quantité est modifiée
-        if (isset($data['Quantity'])) {
-            $produit = Produit::findOrFail($commande->product_id);
-            
-            // Calculer la différence de quantité
-            $quantityDifference = $data['Quantity'] - $commande->Quantity;
-            
-            // Vérifier si la nouvelle quantité est disponible
-            if ($quantityDifference > 0 && $produit->quantity < $quantityDifference) {
-                return response()->json([
-                    'message' => 'Quantité insuffisante en stock',
-                    'available_quantity' => $produit->quantity
-                ], 422);
-            }
-            
-            // Mettre à jour la quantité du produit
-            $produit->update([
-                'quantity' => $produit->quantity - $quantityDifference
-            ]);
-            
-            // Recalculer le prix total
-            $data['total_price'] = $produit->price * $data['Quantity'];
+            return response()->json([
+                'message' => 'Commande mise à jour avec succès',
+                'data' => new CommandeResource($commande->load(['customer', 'produits']))
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de la mise à jour de la commande',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $commande->update($data);
-
-        return response()->json([
-            'message' => 'Commande mise à jour avec succès',
-            'data' => new CommandeResource($commande->load(['customer', 'produit']))
-        ], 200);
     }
 
     /**
-     * Supprimer une commande
+     * Annuler une commande (remet en stock)
      */
     public function destroy(Commande $commande): JsonResponse
     {
-        // Récupérer le produit associé à la commande
-        $produit = Produit::findOrFail($commande->product_id);
-        
-        // Remettre la quantité en stock
-        $produit->update([
-            'quantity' => $produit->quantity + $commande->Quantity
-        ]);
+        try {
+            DB::beginTransaction();
+            
+            // Remettre en stock tous les produits de la commande
+            foreach ($commande->produits as $produit) {
+                $quantity = $produit->pivot->quantity;
+                $produit->increment('quantity', $quantity);
+            }
+            
+            // Détacher tous les produits
+            $commande->produits()->detach();
+            
+            // Supprimer la commande
+            $commande->delete();
+            
+            DB::commit();
 
-        $commande->delete();
-
-        return response()->json([
-            'message' => 'Commande supprimée avec succès'
-        ], 200);
+            return response()->json([
+                'message' => 'Commande annulée avec succès'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Erreur lors de l\'annulation de la commande',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -170,7 +200,7 @@ class CommandeController extends Controller
 
         return response()->json([
             'message' => 'Statut de livraison mis à jour avec succès',
-            'data' => new CommandeResource($commande->load(['customer', 'produit']))
+            'data' => new CommandeResource($commande->load(['customer', 'produits']))
         ], 200);
     }
 
@@ -189,7 +219,7 @@ class CommandeController extends Controller
 
         return response()->json([
             'message' => 'Statut de paiement mis à jour avec succès',
-            'data' => new CommandeResource($commande->load(['customer', 'produit']))
+            'data' => new CommandeResource($commande->load(['customer', 'produits']))
         ], 200);
     }
 
@@ -198,7 +228,7 @@ class CommandeController extends Controller
      */
     public function customerOrders($customerId): JsonResponse
     {
-        $commandes = Commande::with(['produit'])
+        $commandes = Commande::with(['produits'])
             ->where('customer_id', $customerId)
             ->latest()
             ->get();
