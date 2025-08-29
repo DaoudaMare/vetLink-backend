@@ -129,6 +129,7 @@ Route::middleware('auth:sanctum')->prefix('chat')->group(function () {
     Route::post('/conversations/start', [App\Http\Controllers\Api\ChatController::class, 'startConversation']);
     Route::post('/messages/{message}/read', [App\Http\Controllers\Api\ChatController::class, 'markAsRead']);
     Route::delete('/conversations/{conversation}', [App\Http\Controllers\Api\ChatController::class, 'leaveConversation']);
+    Route::get('/messages/{message}/download', [App\Http\Controllers\Api\ChatController::class, 'downloadAttachment'])->name('chat.download');
 });
 
 // Routes pour les documents
